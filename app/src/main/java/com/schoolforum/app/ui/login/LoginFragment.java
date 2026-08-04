@@ -283,12 +283,8 @@ public class LoginFragment extends Fragment {
                                 
                                 Toast.makeText(getContext(), "登录成功", Toast.LENGTH_SHORT).show();
                                 
-                                // 新设备登录安全提示（服务端检测到新设备时弹对话框）
-                                if (response.isNewDevice && response.device != null) {
-                                    showNewDeviceDialog(response.device);
-                                } else {
-                                    goMainAfterLogin();
-                                }
+                                // 新设备登录提示已走站内消息（消息列表可见），不弹窗
+                                goMainAfterLogin();
                             } else {
                                 // 处理特定错误代码
                                 String errorMsg = response.message != null ? response.message : "登录失败";
@@ -351,22 +347,6 @@ public class LoginFragment extends Fragment {
         } else {
             log("WARN: Activity is not LoginActivity: " + (getActivity() != null ? getActivity().getClass().getName() : "null"));
         }
-    }
-
-    /** 新设备登录安全提示对话框（服务端检测到新设备时展示） */
-    private void showNewDeviceDialog(DeviceInfo device) {
-        String time = device.time != null ? device.time.replace("T", " ").replace("Z", "").substring(0, Math.min(16, device.time.length())) : "";
-        new android.app.AlertDialog.Builder(requireContext())
-                .setTitle("检测到新设备登录")
-                .setMessage("为了您的账号安全，请确认是否为本人操作：\n\n"
-                        + "📱 设备：" + (device.device != null ? device.device : "未知") + "\n"
-                        + "🖥 系统：" + (device.os != null ? device.os : "未知") + "\n"
-                        + "🌐 IP：" + (device.ip != null ? device.ip : "未知") + "\n"
-                        + "🕐 时间：" + time + "\n\n"
-                        + "如非本人操作，请尽快修改密码保护账号安全")
-                .setPositiveButton("我知道了", (dialog, which) -> goMainAfterLogin())
-                .setCancelable(false)
-                .show();
     }
 
     private void showLoading(boolean show) {

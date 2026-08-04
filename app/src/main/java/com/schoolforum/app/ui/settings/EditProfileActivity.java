@@ -184,12 +184,12 @@ public class EditProfileActivity extends AppCompatActivity {
             ((RadioButton) findViewById(R.id.rbGenderSecret)).setChecked(true);
         }
 
-        // 学校（需要从学校列表中查找名称）
+        // 学校（需要从学校列表中查找；用户资料存的是学校名称，兼容旧数据存 id）
         if (user.has("school") && !user.get("school").isJsonNull()) {
-            String schoolId = user.get("school").getAsString();
-            if (schoolId != null && schoolList != null) {
+            String userSchool = user.get("school").getAsString();
+            if (userSchool != null && schoolList != null) {
                 for (SchoolInfo school : schoolList) {
-                    if (schoolId.equals(school.id)) {
+                    if (userSchool.equals(school.name) || userSchool.equals(school.id)) {
                         selectedSchoolInfo = school;
                         tvSchoolValue.setText(school.name);
                         break;
@@ -439,11 +439,11 @@ public class EditProfileActivity extends AppCompatActivity {
         else if (selectedId == R.id.rbGenderFemale) gender = "female";
 
         Map<String, String> params = new HashMap<>();
-        params.put("userId", currentUserId);
         params.put("username", username);
         params.put("signature", signature);
         params.put("gender", gender);
-        if (selectedSchoolInfo != null) params.put("school", selectedSchoolInfo.id);
+        // school 字段应存学校名称（id 是配置代号如 'XXXX'，存储名称才能正确展示）
+        if (selectedSchoolInfo != null) params.put("school", selectedSchoolInfo.name);
         if (selectedEnrollmentYear > 0) params.put("enrollmentYear", String.valueOf(selectedEnrollmentYear));
         if (selectedClass != null) params.put("className", selectedClass);
         if (birthday != null) params.put("birthday", birthday);

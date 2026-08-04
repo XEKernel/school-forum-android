@@ -61,6 +61,7 @@ public class RegisterFragment extends Fragment {
     
     private String selectedBirthday;
     private String selectedSchoolId;
+    private String selectedSchoolName; // 学校显示名称（school 字段应存名称而非 id）
     private int selectedYear;
 
     // 图形验证码（服务端注册与发码均要求）
@@ -215,6 +216,7 @@ public class RegisterFragment extends Fragment {
         etSchool.setAdapter(adapter);
         etSchool.setOnItemClickListener((parent, view, position, id) -> {
             selectedSchoolId = schoolIds.get(position);
+            selectedSchoolName = schoolNames.get(position);
             if (selectedYear > 0) {
                 loadClasses(selectedSchoolId, selectedYear);
             }
@@ -386,7 +388,8 @@ public class RegisterFragment extends Fragment {
         params.put("password", password);
         params.put("email", email);
         params.put("verificationCode", code);
-        params.put("school", selectedSchoolId);
+        // school 字段应存学校名称（id 是配置代号如 'XXXX'，存储名称才能正确展示）
+        params.put("school", selectedSchoolName != null ? selectedSchoolName : (selectedSchoolId != null ? selectedSchoolId : ""));
         params.put("enrollmentYear", String.valueOf(selectedYear));
         params.put("className", className);
         if (!TextUtils.isEmpty(selectedBirthday)) {

@@ -494,6 +494,10 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostClickL
                 public void onError(String error) {
                     requireActivity().runOnUiThread(() -> {
                         isLoading = false;
+                        // 分页加载失败时回滚页码，避免下次跳页
+                        if (currentPage > 1) {
+                            currentPage--;
+                        }
                         showLoading(false);
                         swipeRefresh.setRefreshing(false);
                         showError(error);
@@ -549,7 +553,21 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostClickL
                                 post.setLiked(data.liked);
                                 post.setDislikes(data.dislikes);
                                 post.setDisliked(data.disliked);
-                                adapter.notifyItemChanged(position);
+                                // 按 id 定位刷新（异步回调期间 position 可能失效）
+                                int idx = -1;
+                                List<Post> cur = adapter.getCurrentList();
+                                for (int i = 0; i < cur.size(); i++) {
+                                    if (cur.get(i) != null && post.getId() != null
+                                            && post.getId().equals(cur.get(i).getId())) {
+                                        idx = i;
+                                        break;
+                                    }
+                                }
+                                if (idx >= 0) {
+                                    adapter.notifyItemChanged(idx);
+                                } else {
+                                    adapter.submitList(new ArrayList<>(posts));
+                                }
                             }
                         } catch (Exception e) {
                             showError("操作失败");

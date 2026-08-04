@@ -494,6 +494,18 @@ public class EditProfileActivity extends AppCompatActivity {
             try {
                 JsonObject response = gson.fromJson(data, JsonObject.class);
                 if (response.has("success") && response.get("success").getAsBoolean()) {
+                    // 用服务端返回的最新用户数据刷新本地缓存（避免其他页面显示旧值）
+                    if (response.has("user") && response.get("user").isJsonObject()) {
+                        try {
+                            com.schoolforum.app.model.User updatedUser = gson.fromJson(
+                                    response.getAsJsonObject("user").toString(),
+                                    com.schoolforum.app.model.User.class);
+                            if (updatedUser != null && updatedUser.getId() != null) {
+                                UserManager.getInstance(this).saveUser(updatedUser);
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    }
                     Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
                     setResult(RESULT_OK);
                     finish();

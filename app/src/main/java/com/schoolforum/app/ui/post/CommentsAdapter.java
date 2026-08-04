@@ -329,8 +329,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
          */
         public int measureContentHeight(int widthPx) {
             if (replies.isEmpty()) return 0;
-            // 防御：限制递归深度，防止极端数据导致栈溢出
-            if (depth >= 8) return 0;
+            // 嵌套深度上限 6 层（与服务端 MAX_REPLY_DEPTH 一致）：第 6 层回复不再测量子层
+            if (depth >= 6) return 0;
             int totalHeight = 0;
             try {
                 for (int i = 0; i < replies.size(); i++) {
@@ -428,9 +428,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                     tvReplyToUsername.setVisibility(View.GONE);
                 }
 
-                // 显示嵌套回复列表（递归）
+                // 显示嵌套回复列表（递归，最多 6 层，与服务端 MAX_REPLY_DEPTH 一致）
                 List<Reply> nestedReplies = reply.getReplies();
-                if (nestedReplies != null && !nestedReplies.isEmpty()) {
+                if (depth < 6 && nestedReplies != null && !nestedReplies.isEmpty()) {
                     layoutNestedReplies.setVisibility(View.VISIBLE);
                     rvNestedReplies.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
                     

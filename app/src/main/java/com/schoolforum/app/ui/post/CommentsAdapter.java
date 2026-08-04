@@ -1,5 +1,6 @@
 package com.schoolforum.app.ui.post;
 
+import android.content.Context;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -175,7 +176,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             if (replies != null && !replies.isEmpty()) {
                 layoutReplies.setVisibility(View.VISIBLE);
                 rvReplies.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
-                NestedRepliesAdapter repliesAdapter = new NestedRepliesAdapter(1, comment.getId());
+                NestedRepliesAdapter repliesAdapter = new NestedRepliesAdapter(1, comment.getId(), itemView.getContext());
                 repliesAdapter.setReplies(replies);
                 // 嵌套 RecyclerView 高度修复（wrap_content 内层高度为 0 问题）
                 applyNestedHeight(rvReplies, repliesAdapter);
@@ -269,6 +270,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
      * 嵌套回复适配器（支持多层递归）
      */
     static class NestedRepliesAdapter extends RecyclerView.Adapter<NestedRepliesAdapter.ReplyViewHolder> {
+        private final Context context; // 用于高度测量时创建临时 View
         private List<Reply> replies = new ArrayList<>();
         private OnReplyActionListener listener;
         private int depth; // 当前嵌套层级
@@ -276,9 +278,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         private String currentUserId;
         private String postAuthorId;
 
-        NestedRepliesAdapter(int depth, String commentId) {
+        NestedRepliesAdapter(int depth, String commentId, Context context) {
             this.depth = depth;
             this.commentId = commentId;
+            this.context = context;
         }
 
         void setReplies(List<Reply> replies) {
@@ -344,7 +347,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
 
         private android.content.Context itemViewContext() {
-            return getContext();
+            return context;
         }
 
         static class ReplyViewHolder extends RecyclerView.ViewHolder {
@@ -413,7 +416,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                     rvNestedReplies.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
                     
                     // 创建下一层级的适配器（depth + 1）
-                    NestedRepliesAdapter nestedAdapter = new NestedRepliesAdapter(depth + 1, commentId);
+                    NestedRepliesAdapter nestedAdapter = new NestedRepliesAdapter(depth + 1, commentId, itemView.getContext());
                     nestedAdapter.setReplies(nestedReplies);
                     // 嵌套 RecyclerView 高度修复（递归层级同样需要）
                     applyNestedHeight(rvNestedReplies, nestedAdapter);

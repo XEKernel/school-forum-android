@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -284,11 +283,11 @@ public class LoginFragment extends Fragment {
                                 
                                 Toast.makeText(getContext(), "登录成功", Toast.LENGTH_SHORT).show();
                                 
-                                if (getActivity() instanceof LoginActivity) {
-                                    log("Calling onLoginSuccess");
-                                    ((LoginActivity) getActivity()).onLoginSuccess();
+                                // 新设备登录安全提示（服务端检测到新设备时弹对话框）
+                                if (response.isNewDevice && response.device != null) {
+                                    showNewDeviceDialog(response.device);
                                 } else {
-                                    log("WARN: Activity is not LoginActivity: " + (getActivity() != null ? getActivity().getClass().getName() : "null"));
+                                    goMainAfterLogin();
                                 }
                             } else {
                                 // 处理特定错误代码
@@ -329,6 +328,45 @@ public class LoginFragment extends Fragment {
         String refreshToken;    // 刷新令牌
         String adminToken;      // 管理员令牌（仅管理员登录时返回）
         String code;            // 错误代码（如 TOKEN_EXPIRED）
+        // 新设备登录检测
+        boolean isNewDevice;
+        DeviceInfo device;
+    }
+
+    /** 新设备登录信息（服务端解析 User-Agent 返回） */
+    private static class DeviceInfo {
+        String source;
+        String browser;
+        String os;
+        String device;
+        String ip;
+        String time;
+    }
+
+    /** 登录成功跳转主界面 */
+    private void goMainAfterLogin() {
+        if (getActivity() instanceof LoginActivity) {
+            log("Calling onLoginSuccess");
+            ((LoginActivity) getActivity()).onLoginSuccess();
+        } else {
+            log("WARN: Activity is not LoginActivity: " + (getActivity() != null ? getActivity().getClass().getName() : "null"));
+        }
+    }
+
+    /** 新设备登录安全提示对话框（服务端检测到新设备时展示） */
+    private void showNewDeviceDialog(DeviceInfo device) {
+        String time = device.time != null ? device.time.replace("T", " ").replace("Z", "").substring(0, Math.min(16, device.time.length())) : "";
+        new android.app.AlertDialog.Builder(requireContext())
+                .setTitle("检测到新设备登录")
+                .setMessage("为了您的账号安全，请确认是否为本人操作：\n\n"
+                        + "📱 设备：" + (device.device != null ? device.device : "未知") + "\n"
+                        + "🖥 系统：" + (device.os != null ? device.os : "未知") + "\n"
+                        + "🌐 IP：" + (device.ip != null ? device.ip : "未知") + "\n"
+                        + "🕐 时间：" + time + "\n\n"
+                        + "如非本人操作，请尽快修改密码保护账号安全")
+                .setPositiveButton("我知道了", (dialog, which) -> goMainAfterLogin())
+                .setCancelable(false)
+                .show();
     }
 
     private void showLoading(boolean show) {

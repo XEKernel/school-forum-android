@@ -100,6 +100,9 @@ dependencies {
     
     // EXIF信息读取（用于图片旋转）
     implementation 'androidx.exifinterface:exifinterface:1.3.6'
+
+    // SVG 渲染（图形验证码）
+    implementation 'com.caverock:androidsvg:1.4'
     
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

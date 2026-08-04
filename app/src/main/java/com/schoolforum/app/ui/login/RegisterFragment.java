@@ -1,5 +1,7 @@
 package com.schoolforum.app.ui.login;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
@@ -9,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -16,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.caverock.androidsvg.SVG;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
@@ -36,15 +40,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+
 /**
  * 注册Fragment
  */
 public class RegisterFragment extends Fragment {
     private static final String TAG = "RegisterFragment";
 
-    private TextInputEditText etQq, etUsername, etPassword, etConfirmPassword, etBirthday, etEmail, etCode;
+    private TextInputEditText etQq, etUsername, etPassword, etConfirmPassword, etBirthday, etEmail, etCode, etCaptchaCode;
     private AutoCompleteTextView etGender, etSchool, etYear, etClass;
     private View btnSendCode, btnRegister;
+    private ImageView ivCaptcha;
     private ProgressBar progressBar;
     private CountDownTimer countDownTimer;
     private FileLogger logger;
@@ -53,6 +62,9 @@ public class RegisterFragment extends Fragment {
     private String selectedBirthday;
     private String selectedSchoolId;
     private int selectedYear;
+
+    // 图形验证码（服务端注册与发码均要求）
+    private String captchaId;
 
     @Nullable
     @Override
@@ -68,6 +80,7 @@ public class RegisterFragment extends Fragment {
         initViews(view);
         setupDropdowns();
         loadSchools();
+        loadCaptcha();
     }
     
     private void log(String message) {
@@ -85,18 +98,62 @@ public class RegisterFragment extends Fragment {
         etBirthday = view.findViewById(R.id.etBirthday);
         etEmail = view.findViewById(R.id.etEmail);
         etCode = view.findViewById(R.id.etCode);
+        etCaptchaCode = view.findViewById(R.id.etCaptchaCode);
         etGender = view.findViewById(R.id.etGender);
         etSchool = view.findViewById(R.id.etSchool);
         etYear = view.findViewById(R.id.etYear);
         etClass = view.findViewById(R.id.etClass);
         btnSendCode = view.findViewById(R.id.btnSendCode);
         btnRegister = view.findViewById(R.id.btnRegister);
+        ivCaptcha = view.findViewById(R.id.ivCaptcha);
         progressBar = getActivity().findViewById(R.id.progressBar);
 
         btnSendCode.setOnClickListener(v -> sendVerificationCode());
         btnRegister.setOnClickListener(v -> register());
         
         etBirthday.setOnClickListener(v -> showDatePicker());
+
+        // 加载图形验证码，点击刷新
+        if (ivCaptcha != null) {
+            ivCaptcha.setOnClickListener(v -> loadCaptcha());
+        }
+    }
+
+    /**
+     * 加载图形验证码（GET /captcha，SVG + X-Captcha-Id 头）
+     */
+    private void loadCaptcha() {
+        ApiClient.getInstance(requireContext()).get("/captcha", new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull java.io.IOException e) {
+                log("加载图形验证码失败: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws java.io.IOException {
+                try {
+                    final String svgBody = response.body() != null ? response.body().string() : "";
+                    final String newCaptchaId = response.header("X-Captcha-Id");
+                    requireActivity().runOnUiThread(() -> {
+                        captchaId = newCaptchaId;
+                        if (ivCaptcha != null && !TextUtils.isEmpty(svgBody)) {
+                            try {
+                                SVG svg = SVG.getFromString(svgBody);
+                                Bitmap bitmap = Bitmap.createBitmap(220, 88, Bitmap.Config.ARGB_8888);
+                                android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
+                                svg.renderToCanvas(canvas);
+                                ivCaptcha.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+                            } catch (Exception e) {
+                                log("SVG 渲染失败: " + e.getMessage());
+                                ivCaptcha.setImageResource(R.drawable.ic_image);
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    log("解析图形验证码失败: " + e.getMessage());
+                }
+            }
+        });
     }
 
     private void setupDropdowns() {
@@ -208,9 +265,20 @@ public class RegisterFragment extends Fragment {
         }
 
         showLoading(true);
-        
+
+        String captchaCode = etCaptchaCode != null && etCaptchaCode.getText() != null
+                ? etCaptchaCode.getText().toString().trim() : "";
+        if (TextUtils.isEmpty(captchaId) || TextUtils.isEmpty(captchaCode)) {
+            showLoading(false);
+            Toast.makeText(getContext(), "请输入图形验证码", Toast.LENGTH_SHORT).show();
+            loadCaptcha();
+            return;
+        }
+
         Map<String, String> params = new HashMap<>();
         params.put("email", email);
+        params.put("captchaId", captchaId);
+        params.put("captchaCode", captchaCode);
         
         ApiClient.getInstance(requireContext()).postForm("/send-verification-code", params, 
             new ApiClient.ApiCallback<String>() {
@@ -327,6 +395,18 @@ public class RegisterFragment extends Fragment {
         if (!TextUtils.isEmpty(gender)) {
             params.put("gender", gender.equals("男") ? "male" : gender.equals("女") ? "female" : "other");
         }
+
+        // 注册接口要求图形验证码（服务端 _verifyCaptcha）
+        String captchaCode = etCaptchaCode != null && etCaptchaCode.getText() != null
+                ? etCaptchaCode.getText().toString().trim() : "";
+        if (TextUtils.isEmpty(captchaId) || TextUtils.isEmpty(captchaCode)) {
+            showLoading(false);
+            Toast.makeText(getContext(), "请输入图形验证码", Toast.LENGTH_SHORT).show();
+            loadCaptcha();
+            return;
+        }
+        params.put("captchaId", captchaId);
+        params.put("captchaCode", captchaCode);
 
         ApiClient.getInstance(requireContext()).postForm("/register", params,
             new ApiClient.ApiCallback<String>() {

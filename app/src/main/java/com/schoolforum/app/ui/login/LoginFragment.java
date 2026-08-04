@@ -1,5 +1,7 @@
 package com.schoolforum.app.ui.login;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
@@ -7,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -14,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.caverock.androidsvg.SVG;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
@@ -27,18 +31,26 @@ import com.schoolforum.app.utils.UserManager;
 import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+
 /**
  * 登录Fragment
  */
 public class LoginFragment extends Fragment {
     private static final String TAG = "LoginFragment";
 
-    private TextInputEditText etEmail, etQq, etPassword, etCode;
+    private TextInputEditText etEmail, etQq, etPassword, etCode, etCaptchaCode;
     private View btnSendCode, btnLogin;
+    private ImageView ivCaptcha;
     private ProgressBar progressBar;
     private CountDownTimer countDownTimer;
     private FileLogger logger;
     private final Gson gson = new Gson();
+
+    // 图形验证码（服务端要求发送邮箱验证码前先通过图形验证码防滥用）
+    private String captchaId;
 
     @Nullable
     @Override
@@ -58,12 +70,20 @@ public class LoginFragment extends Fragment {
         etQq = view.findViewById(R.id.etQq);
         etPassword = view.findViewById(R.id.etPassword);
         etCode = view.findViewById(R.id.etCode);
+        etCaptchaCode = view.findViewById(R.id.etCaptchaCode);
         btnSendCode = view.findViewById(R.id.btnSendCode);
         btnLogin = view.findViewById(R.id.btnLogin);
+        ivCaptcha = view.findViewById(R.id.ivCaptcha);
         progressBar = getActivity().findViewById(R.id.progressBar);
 
         btnSendCode.setOnClickListener(v -> sendVerificationCode());
         btnLogin.setOnClickListener(v -> login());
+
+        // 加载图形验证码，点击刷新
+        if (ivCaptcha != null) {
+            ivCaptcha.setOnClickListener(v -> loadCaptcha());
+            loadCaptcha();
+        }
     }
     
     private void log(String message) {
@@ -72,6 +92,44 @@ public class LoginFragment extends Fragment {
             logger.d(TAG, message);
         }
     }
+
+    /**
+     * 加载图形验证码（GET /captcha，SVG + X-Captcha-Id 头）
+     */
+    private void loadCaptcha() {
+        ApiClient.getInstance(requireContext()).get("/captcha", new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull java.io.IOException e) {
+                log("加载图形验证码失败: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws java.io.IOException {
+                try {
+                    final String svgBody = response.body() != null ? response.body().string() : "";
+                    final String newCaptchaId = response.header("X-Captcha-Id");
+                    requireActivity().runOnUiThread(() -> {
+                        captchaId = newCaptchaId;
+                        if (ivCaptcha != null && !TextUtils.isEmpty(svgBody)) {
+                            try {
+                                SVG svg = SVG.getFromString(svgBody);
+                                Bitmap bitmap = Bitmap.createBitmap(220, 88, Bitmap.Config.ARGB_8888);
+                                android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
+                                svg.renderToCanvas(canvas);
+                                ivCaptcha.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+                            } catch (Exception e) {
+                                log("SVG 渲染失败: " + e.getMessage());
+                                ivCaptcha.setImageResource(R.drawable.ic_image);
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    log("解析图形验证码失败: " + e.getMessage());
+                }
+            }
+        });
+    }
+
 
     private void sendVerificationCode() {
         String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
@@ -87,9 +145,20 @@ public class LoginFragment extends Fragment {
         }
 
         showLoading(true);
-        
+
+        String captchaCode = etCaptchaCode != null && etCaptchaCode.getText() != null
+                ? etCaptchaCode.getText().toString().trim() : "";
+        if (TextUtils.isEmpty(captchaId) || TextUtils.isEmpty(captchaCode)) {
+            showLoading(false);
+            Toast.makeText(getContext(), "请输入图形验证码", Toast.LENGTH_SHORT).show();
+            loadCaptcha();
+            return;
+        }
+
         Map<String, String> params = new HashMap<>();
         params.put("email", email);
+        params.put("captchaId", captchaId);
+        params.put("captchaCode", captchaCode);
         
         ApiClient.getInstance(requireContext()).postForm("/send-login-verification-code", params, 
             new ApiClient.ApiCallback<String>() {

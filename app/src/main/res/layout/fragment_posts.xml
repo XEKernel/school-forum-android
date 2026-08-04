@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fitsSystemWindows="true">
+
+    <!-- 顶部AppBar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        app:elevation="@dimen/elevation_none">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:contentScrim="@color/primary">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 标题栏 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/toolbar_height"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/spacing_xl"
+                    android:paddingEnd="@dimen/spacing_xl">
+
+                    <!-- 应用标题 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/app_name"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/text_2xl"
+                            android:textStyle="bold"
+                            android:letterSpacing="-0.02" />
+
+                        <TextView
+                            android:id="@+id/tvSubtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:text="校园交流社区"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/text_sm"
+                            android:alpha="0.8" />
+
+                    </LinearLayout>
+
+                    <!-- 私信按钮 -->
+                    <FrameLayout
+                        android:id="@+id/btnMessages"
+                        android:layout_width="@dimen/spacing_4xl"
+                        android:layout_height="@dimen/spacing_4xl"
+                        android:background="@drawable/ripple_circle">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_md"
+                            android:layout_height="@dimen/icon_md"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_message"
+                            app:tint="@color/white"
+                            android:contentDescription="@string/messages" />
+
+                        <!-- 未读徽章 -->
+                        <TextView
+                            android:id="@+id/tvMessageBadge"
+                            android:layout_width="@dimen/badge_size_lg"
+                            android:layout_height="@dimen/badge_size_lg"
+                            android:layout_gravity="top|end"
+                            android:layout_marginTop="@dimen/spacing_sm"
+                            android:layout_marginEnd="@dimen/spacing_sm"
+                            android:background="@drawable/badge_background"
+                            android:gravity="center"
+                            android:textColor="@color/badge_text"
+                            android:textSize="@dimen/badge_text_size"
+                            android:visibility="gone"
+                            tools:text="2" />
+
+                    </FrameLayout>
+
+                    <!-- 通知按钮 -->
+                    <FrameLayout
+                        android:id="@+id/btnNotifications"
+                        android:layout_width="@dimen/spacing_4xl"
+                        android:layout_height="@dimen/spacing_4xl"
+                        android:layout_marginStart="@dimen/spacing_sm"
+                        android:background="@drawable/ripple_circle">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_md"
+                            android:layout_height="@dimen/icon_md"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_notification"
+                            app:tint="@color/white"
+                            android:contentDescription="@string/notifications" />
+
+                        <!-- 未读徽章 -->
+                        <TextView
+                            android:id="@+id/tvNotificationBadge"
+                            android:layout_width="@dimen/badge_size_lg"
+                            android:layout_height="@dimen/badge_size_lg"
+                            android:layout_gravity="top|end"
+                            android:layout_marginTop="@dimen/spacing_sm"
+                            android:layout_marginEnd="@dimen/spacing_sm"
+                            android:background="@drawable/badge_background"
+                            android:gravity="center"
+                            android:textColor="@color/badge_text"
+                            android:textSize="@dimen/badge_text_size"
+                            android:visibility="gone"
+                            tools:text="3" />
+
+                    </FrameLayout>
+
+                    <!-- 用户头像 -->
+                    <FrameLayout
+                        android:id="@+id/btnUser"
+                        android:layout_width="@dimen/spacing_4xl"
+                        android:layout_height="@dimen/spacing_4xl"
+                        android:layout_marginStart="@dimen/spacing_sm"
+                        android:background="@drawable/ripple_circle">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/ivAvatar"
+                            android:layout_width="@dimen/avatar_lg"
+                            android:layout_height="@dimen/avatar_lg"
+                            android:layout_gravity="center"
+                            android:src="@mipmap/ic_launcher_round"
+                            app:civ_border_width="@dimen/avatar_border_width"
+                            app:civ_border_color="@color/white" />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+                <!-- 搜索栏 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_xl"
+                    android:layout_marginEnd="@dimen/spacing_xl"
+                    android:layout_marginBottom="@dimen/spacing_lg"
+                    app:cardCornerRadius="@dimen/button_corner_radius"
+                    app:cardElevation="@dimen/elevation_none"
+                    app:cardBackgroundColor="@color/white"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height_sm"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="@dimen/spacing_xl"
+                        android:paddingEnd="@dimen/spacing_xl">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_sm"
+                            android:layout_height="@dimen/icon_sm"
+                            android:src="@drawable/ic_search"
+                            app:tint="@color/text_hint"
+                            android:contentDescription="@string/search" />
+
+                        <EditText
+                            android:id="@+id/etSearch"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:layout_marginStart="@dimen/spacing_lg"
+                            android:background="@null"
+                            android:hint="@string/search_hint"
+                            android:textSize="@dimen/text_md"
+                            android:textColorHint="@color/text_hint"
+                            android:textColor="@color/text_primary"
+                            android:imeOptions="actionSearch"
+                            android:inputType="text"
+                            android:maxLines="1"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <!-- 清除按钮 -->
+                        <ImageView
+                            android:id="@+id/btnClearSearch"
+                            android:layout_width="@dimen/icon_md"
+                            android:layout_height="@dimen/icon_md"
+                            android:src="@drawable/ic_close"
+                            app:tint="@color/text_hint"
+                            android:background="@drawable/ripple_circle"
+                            android:padding="@dimen/spacing_sm"
+                            android:visibility="gone"
+                            android:contentDescription="@string/clear" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- 帖子列表 -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 公告横幅 -->
+                <LinearLayout
+                    android:id="@+id/announcementBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:padding="@dimen/spacing_lg">
+
+                    <!-- 公告卡片 -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/announcementCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="@dimen/spacing_lg"
+                        app:cardElevation="@dimen/elevation_sm"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="@dimen/spacing_lg"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:id="@+id/ivAnnouncementIcon"
+                                android:layout_width="@dimen/icon_md"
+                                android:layout_height="@dimen/icon_md"
+                                android:src="@drawable/ic_announcement"
+                                android:contentDescription="@string/announcement" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="@dimen/spacing_lg"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvAnnouncementTitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textStyle="bold"
+                                    android:textSize="@dimen/text_md"
+                                    android:textColor="@color/text_primary" />
+
+                                <TextView
+                                    android:id="@+id/tvAnnouncementContent"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/spacing_xs"
+                                    android:textSize="@dimen/text_sm"
+                                    android:maxLines="2"
+                                    android:ellipsize="end"
+                                    android:textColor="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <ImageView
+                                android:id="@+id/btnCloseAnnouncement"
+                                android:layout_width="@dimen/icon_md"
+                                android:layout_height="@dimen/icon_md"
+                                android:src="@drawable/ic_close"
+                                android:padding="@dimen/spacing_xs"
+                                android:background="@drawable/ripple_circle"
+                                android:contentDescription="@string/close" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingTop="@dimen/spacing_sm"
+                    android:paddingBottom="@dimen/spacing_4xl"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_post" />
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- 发帖浮动按钮 - MD3 风格 -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabPost"
+        style="@style/Widget.App.FloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_edit"
+        android:contentDescription="@string/post_new"
+        app:backgroundTint="@color/primary"
+        app:tint="@color/white" />
+
+    <!-- 空状态 -->
+    <LinearLayout
+        android:id="@+id/emptyView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="@dimen/spacing_3xl">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_empty_post"
+            app:tint="@color/text_hint"
+            android:alpha="0.5"
+            android:contentDescription="@string/empty" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xl"
+            android:text="@string/no_posts"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_lg" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/pull_to_refresh"
+            android:textColor="@color/text_hint"
+            android:textSize="@dimen/text_md" />
+
+    </LinearLayout>
+
+    <!-- 加载进度条 -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/primary"
+        android:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

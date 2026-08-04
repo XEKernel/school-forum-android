@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/surface">
+
+    <!-- 标题 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_delete"
+            android:tint="@color/error" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="注销账户"
+            android:textColor="@color/error"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- 警告提示 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚠️ 注销账户将永久删除您的账户信息，此操作不可恢复！"
+        android:textColor="@color/warning"
+        android:textSize="13sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 密码输入 -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="请输入密码验证身份"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/etDeletionPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="请输入密码"
+        android:inputType="textPassword"
+        android:background="@drawable/comment_input_bg"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 发送验证码按钮 -->
+    <TextView
+        android:id="@+id/btnSendDeletionCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送验证码"
+        android:textColor="@color/primary"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:background="@drawable/ripple_rounded"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 验证码输入（初始隐藏） -->
+    <LinearLayout
+        android:id="@+id/layoutDeletionCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="验证码已发送到您的邮箱"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/etDeletionCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入6位验证码"
+            android:inputType="number"
+            android:maxLength="6"
+            android:background="@drawable/comment_input_bg"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 保留数据选项 -->
+        <android.widget.CheckBox
+            android:id="@+id/cbKeepData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="保留发布的帖子和评论"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 操作按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <TextView
+                android:id="@+id/btnCancelDeletion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="取消"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:background="@drawable/ripple_rounded"
+                android:padding="12dp"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/btnConfirmDeletion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="确认注销"
+                android:textColor="@color/error"
+                android:textSize="14sp"
+                android:background="@drawable/ripple_rounded"
+                android:padding="12dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

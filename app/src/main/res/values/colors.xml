@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ========================================
+         Material Design 3 动态颜色系统
+         ======================================== -->
+    
+    <!-- 主色调 - Primary (深蓝色，与网页版一致) -->
+    <color name="md3_primary">#4361EE</color>
+    <color name="md3_onPrimary">#FFFFFF</color>
+    <color name="md3_primaryContainer">#B8C4FF</color>
+    <color name="md3_onPrimaryContainer">#001B3F</color>
+    
+    <!-- 次要色 - Secondary -->
+    <color name="md3_secondary">#455A64</color>
+    <color name="md3_onSecondary">#FFFFFF</color>
+    <color name="md3_secondaryContainer">#CFD8DC</color>
+    <color name="md3_onSecondaryContainer">#1C313A</color>
+    
+    <!-- 第三色 - Tertiary -->
+    <color name="md3_tertiary">#3F37C9</color>
+    <color name="md3_onTertiary">#FFFFFF</color>
+    <color name="md3_tertiaryContainer">#DEE1FF</color>
+    <color name="md3_onTertiaryContainer">#111A66</color>
+    
+    <!-- 错误色 - Error -->
+    <color name="md3_error">#BA1A1A</color>
+    <color name="md3_onError">#FFFFFF</color>
+    <color name="md3_errorContainer">#FFDAD6</color>
+    <color name="md3_onErrorContainer">#410002</color>
+    
+    <!-- 背景色 - Background -->
+    <color name="md3_background">#FAFBFF</color>
+    <color name="md3_onBackground">#1A1B21</color>
+    
+    <!-- 表面色 - Surface -->
+    <color name="md3_surface">#FAFBFF</color>
+    <color name="md3_onSurface">#1A1B21</color>
+    <color name="md3_surfaceVariant">#E1E2EC</color>
+    <color name="md3_onSurfaceVariant">#45464F</color>
+    
+    <!-- 轮廓色 - Outline -->
+    <color name="md3_outline">#767680</color>
+    <color name="md3_outlineVariant">#C5C6D0</color>
+    
+    <!-- 反转表面色 - Inverse Surface -->
+    <color name="md3_inverseSurface">#2F3036</color>
+    <color name="md3_inverseOnSurface">#F1F0F4</color>
+    <color name="md3_inversePrimary">#B8C4FF</color>
+    
+    <!-- ========================================
+         应用自定义颜色（继承自 MD3）
+         ======================================== -->
+    
+    <!-- 主题色 -->
+    <color name="primary">@color/md3_primary</color>
+    <color name="primary_dark">#1976D2</color>
+    <color name="primary_light">#64B5F6</color>
+    <color name="accent">#1976D2</color>
+    
+    <!-- 基础色 -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    
+    <!-- 背景色 -->
+    <color name="background">@color/md3_background</color>
+    <color name="background_dark">#121212</color>
+    <color name="surface">@color/md3_surface</color>
+    <color name="card_background">@color/md3_surface</color>
+    
+    <!-- 登录页面 -->
+    <color name="login_background">#EEF0FE</color>
+    <color name="login_gradient_start">#4361EE</color>
+    <color name="login_gradient_end">#3F37C9</color>
+    
+    <!-- 文字颜色 -->
+    <color name="text_primary">@color/md3_onBackground</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="text_link">@color/md3_primary</color>
+    <color name="text_white">#FFFFFF</color>
+    
+    <!-- 功能色 -->
+    <color name="success">#10B981</color>
+    <color name="success_light">#D1FAE5</color>
+    <color name="warning">#F59E0B</color>
+    <color name="warning_light">#FEF3C7</color>
+    <color name="error">@color/md3_error</color>
+    <color name="error_light">#FEE2E2</color>
+    <color name="info">#3B82F6</color>
+    <color name="info_light">#DBEAFE</color>
+    
+    <!-- 聊天气泡 -->
+    <color name="chat_bubble_self">@color/md3_primary</color>
+    <color name="chat_bubble_other">@color/md3_surfaceVariant</color>
+    <color name="chat_bubble_self_text">#FFFFFF</color>
+    <color name="chat_bubble_other_text">@color/text_primary</color>
+    
+    <!-- 分割线 -->
+    <color name="divider">@color/md3_outlineVariant</color>
+    <color name="divider_light">#F3F4F6</color>
+    
+    <!-- 水波纹效果 -->
+    <color name="ripple">#1F4361EE</color>
+    <color name="ripple_dark">#1FFFFFFF</color>
+    
+    <!-- 遮罩层 -->
+    <color name="overlay_dark">#80000000</color>
+    <color name="overlay_light">#40FFFFFF</color>
+    <color name="scrim">#52000000</color>
+    
+    <!-- 状态颜色 -->
+    <color name="online">#10B981</color>
+    <color name="offline">#9CA3AF</color>
+    <color name="unread_badge">#EF4444</color>
+    
+    <!-- 卡片阴影 -->
+    <color name="card_shadow">#1A000000</color>
+    <color name="card_shadow_dark">#1AFFFFFF</color>
+    
+    <!-- 导航栏 -->
+    <color name="nav_active">@color/md3_primary</color>
+    <color name="nav_inactive">#9CA3AF</color>
+    <color name="nav_background">@color/md3_surface</color>
+    
+    <!-- 底部导航栏 -->
+    <color name="bottom_nav_active">@color/md3_primaryContainer</color>
+    <color name="bottom_nav_indicator">@color/md3_primary</color>
+    
+    <!-- 按钮渐变 -->
+    <color name="btn_gradient_start">#4361EE</color>
+    <color name="btn_gradient_end">#3F37C9</color>
+    
+    <!-- 头像渐变 -->
+    <color name="avatar_gradient_start">#4361EE</color>
+    <color name="avatar_gradient_end">#3F37C9</color>
+    
+    <!-- 代码高亮颜色 -->
+    <color name="code_background">#F6F8FA</color>
+    <color name="code_text">#24292E</color>
+    <color name="code_keyword">#D73A49</color>
+    <color name="code_string">#032F62</color>
+    <color name="code_comment">#6A737D</color>
+    <color name="code_number">#005CC5</color>
+    <color name="code_function">#6F42C1</color>
+    <color name="code_operator">#005CC5</color>
+    
+    <!-- LaTeX 公式颜色 -->
+    <color name="latex_text">#1A1A2E</color>
+    <color name="latex_background">#F8F8F8</color>
+    
+    <!-- 评分星星 -->
+    <color name="star_filled">#FBBF24</color>
+    <color name="star_empty">#D1D5DB</color>
+    
+    <!-- 徽章 -->
+    <color name="badge_background">#EF4444</color>
+    <color name="badge_text">#FFFFFF</color>
+    
+    <!-- 公告颜色 -->
+    <color name="announcement_info">#3B82F6</color>
+    <color name="announcement_info_bg">#DBEAFE</color>
+    <color name="announcement_success">#10B981</color>
+    <color name="announcement_success_bg">#D1FAE5</color>
+    <color name="announcement_warning">#F59E0B</color>
+    <color name="announcement_warning_bg">#FEF3C7</color>
+    <color name="announcement_danger">#EF4444</color>
+    <color name="announcement_danger_bg">#FEE2E2</color>
+</resources>

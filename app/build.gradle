@@ -1,0 +1,107 @@
+plugins {
+    id 'com.android.application'
+}
+
+// 排除重复的 annotations 库
+configurations.all {
+    resolutionStrategy {
+        // 强制使用单一版本的 annotations
+        force 'org.jetbrains:annotations:23.0.0'
+    }
+    // 排除旧版本的 annotations-java5
+    exclude group: 'org.jetbrains', module: 'annotations-java5'
+}
+
+android {
+    namespace 'com.schoolforum.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.schoolforum.app"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Debug 默认指向模拟器宿主机，正式包需在 release 块中覆盖为真实服务器地址
+        buildConfigField "String", "BASE_URL", '"http://10.0.2.2:2080"'
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // TODO: 发布前将下面的地址替换为真实服务器地址
+            buildConfigField "String", "BASE_URL", '"https://your-server.com"'
+        }
+        debug {
+            // Debug 包使用 defaultConfig 中的地址（模拟器宿主机），无需重复声明
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    
+    // 确保使用Java 17工具链
+    tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = '17'
+        targetCompatibility = '17'
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    
+    // 网络请求
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+    
+    // JSON解析
+    implementation 'com.google.code.gson:gson:2.10.1'
+    
+    // 图片加载
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    
+    // 圆形头像
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    
+    // RecyclerView
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    
+    // ViewPager2
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    
+    // Lifecycle & ViewModel
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.7.0'
+    
+    // Markdown渲染
+    implementation 'io.noties.markwon:core:4.6.2'
+    implementation 'io.noties.markwon:image-glide:4.6.2'
+    implementation 'io.noties.markwon:linkify:4.6.2'
+    implementation 'io.noties.markwon:ext-latex:4.6.2'
+    // 简单代码块样式（不使用 prism4j）
+    implementation 'io.noties.markwon:html:4.6.2'
+    
+    // 图片缩放查看
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+    
+    // EXIF信息读取（用于图片旋转）
+    implementation 'androidx.exifinterface:exifinterface:1.3.6'
+    
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}

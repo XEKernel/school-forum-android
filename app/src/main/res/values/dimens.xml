@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ========================================
+         Material Design 3 尺寸系统
+         ======================================== -->
+    
+    <!-- 间距 - Spacing -->
+    <dimen name="spacing_none">0dp</dimen>
+    <dimen name="spacing_xs">2dp</dimen>
+    <dimen name="spacing_sm">4dp</dimen>
+    <dimen name="spacing_md">8dp</dimen>
+    <dimen name="spacing_lg">12dp</dimen>
+    <dimen name="spacing_xl">16dp</dimen>
+    <dimen name="spacing_2xl">24dp</dimen>
+    <dimen name="spacing_3xl">32dp</dimen>
+    <dimen name="spacing_4xl">48dp</dimen>
+    
+    <!-- 内边距 - Padding -->
+    <dimen name="padding_xs">4dp</dimen>
+    <dimen name="padding_sm">8dp</dimen>
+    <dimen name="padding_md">12dp</dimen>
+    <dimen name="padding_lg">16dp</dimen>
+    <dimen name="padding_xl">20dp</dimen>
+    <dimen name="padding_2xl">24dp</dimen>
+    <dimen name="padding_3xl">32dp</dimen>
+    
+    <!-- 外边距 - Margin -->
+    <dimen name="margin_xs">4dp</dimen>
+    <dimen name="margin_sm">8dp</dimen>
+    <dimen name="margin_md">12dp</dimen>
+    <dimen name="margin_lg">16dp</dimen>
+    <dimen name="margin_xl">20dp</dimen>
+    <dimen name="margin_2xl">24dp</dimen>
+    <dimen name="margin_3xl">32dp</dimen>
+    
+    <!-- 圆角 - Corner Radius -->
+    <dimen name="corner_none">0dp</dimen>
+    <dimen name="corner_xs">4dp</dimen>
+    <dimen name="corner_sm">8dp</dimen>
+    <dimen name="corner_md">12dp</dimen>
+    <dimen name="corner_lg">16dp</dimen>
+    <dimen name="corner_xl">20dp</dimen>
+    <dimen name="corner_2xl">24dp</dimen>
+    <dimen name="corner_full">999dp</dimen>
+    
+    <!-- 卡片 -->
+    <dimen name="card_corner_radius">16dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="card_elevation_hovered">4dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+    <dimen name="card_margin">12dp</dimen>
+    
+    <!-- 按钮 -->
+    <dimen name="button_height">48dp</dimen>
+    <dimen name="button_height_sm">40dp</dimen>
+    <dimen name="button_height_lg">56dp</dimen>
+    <dimen name="button_corner_radius">24dp</dimen>
+    <dimen name="button_corner_radius_sm">20dp</dimen>
+    <dimen name="button_padding_horizontal">24dp</dimen>
+    <dimen name="button_padding_horizontal_sm">16dp</dimen>
+    <dimen name="button_min_width">64dp</dimen>
+    
+    <!-- 输入框 -->
+    <dimen name="input_height">56dp</dimen>
+    <dimen name="input_height_sm">48dp</dimen>
+    <dimen name="input_corner_radius">12dp</dimen>
+    <dimen name="input_padding_horizontal">16dp</dimen>
+    <dimen name="input_padding_vertical">16dp</dimen>
+    
+    <!-- 头像 -->
+    <dimen name="avatar_xs">24dp</dimen>
+    <dimen name="avatar_sm">32dp</dimen>
+    <dimen name="avatar_md">40dp</dimen>
+    <dimen name="avatar_lg">48dp</dimen>
+    <dimen name="avatar_xl">64dp</dimen>
+    <dimen name="avatar_2xl">80dp</dimen>
+    <dimen name="avatar_3xl">96dp</dimen>
+    <dimen name="avatar_border_width">2dp</dimen>
+    
+    <!-- 图标 -->
+    <dimen name="icon_xs">16dp</dimen>
+    <dimen name="icon_sm">20dp</dimen>
+    <dimen name="icon_md">24dp</dimen>
+    <dimen name="icon_lg">28dp</dimen>
+    <dimen name="icon_xl">32dp</dimen>
+    <dimen name="icon_2xl">48dp</dimen>
+    
+    <!-- 文字大小 -->
+    <dimen name="text_xs">10sp</dimen>
+    <dimen name="text_sm">12sp</dimen>
+    <dimen name="text_md">14sp</dimen>
+    <dimen name="text_lg">16sp</dimen>
+    <dimen name="text_xl">18sp</dimen>
+    <dimen name="text_2xl">20sp</dimen>
+    <dimen name="text_3xl">24sp</dimen>
+    <dimen name="text_4xl">28sp</dimen>
+    <dimen name="text_5xl">32sp</dimen>
+    
+    <!-- 行高 -->
+    <dimen name="line_height_sm">16sp</dimen>
+    <dimen name="line_height_md">20sp</dimen>
+    <dimen name="line_height_lg">24sp</dimen>
+    <dimen name="line_height_xl">28sp</dimen>
+    
+    <!-- 工具栏 -->
+    <dimen name="toolbar_height">56dp</dimen>
+    <dimen name="toolbar_height_lg">64dp</dimen>
+    <dimen name="toolbar_elevation">4dp</dimen>
+    
+    <!-- 底部导航栏 -->
+    <dimen name="bottom_nav_height">72dp</dimen>
+    <dimen name="bottom_nav_height_lg">80dp</dimen>
+    <dimen name="bottom_nav_icon_size">24dp</dimen>
+    <dimen name="bottom_nav_indicator_width">64dp</dimen>
+    <dimen name="bottom_nav_indicator_height">32dp</dimen>
+    
+    <!-- 标签/徽章 -->
+    <dimen name="badge_size">8dp</dimen>
+    <dimen name="badge_size_sm">6dp</dimen>
+    <dimen name="badge_size_lg">12dp</dimen>
+    <dimen name="badge_text_size">10sp</dimen>
+    <dimen name="badge_min_width">16dp</dimen>
+    <dimen name="badge_corner_radius">8dp</dimen>
+    
+    <!-- 分割线 -->
+    <dimen name="divider_height">1dp</dimen>
+    <dimen name="divider_height_thick">2dp</dimen>
+    <dimen name="divider_margin_horizontal">16dp</dimen>
+    
+    <!-- 列表项 -->
+    <dimen name="list_item_height">56dp</dimen>
+    <dimen name="list_item_height_sm">48dp</dimen>
+    <dimen name="list_item_height_lg">72dp</dimen>
+    <dimen name="list_item_padding">16dp</dimen>
+    <dimen name="list_item_icon_size">24dp</dimen>
+    <dimen name="list_item_avatar_size">40dp</dimen>
+    
+    <!-- 帖子卡片 -->
+    <dimen name="post_card_corner_radius">16dp</dimen>
+    <dimen name="post_card_padding">16dp</dimen>
+    <dimen name="post_card_margin">8dp</dimen>
+    <dimen name="post_image_height">200dp</dimen>
+    <dimen name="post_image_height_sm">120dp</dimen>
+    <dimen name="post_image_corner_radius">12dp</dimen>
+    <dimen name="post_title_max_lines">2</dimen>
+    <dimen name="post_content_max_lines">3</dimen>
+    
+    <!-- 评论 -->
+    <dimen name="comment_avatar_size">32dp</dimen>
+    <dimen name="comment_indent">32dp</dimen>
+    <dimen name="reply_avatar_size">24dp</dimen>
+    
+    <!-- 消息气泡 -->
+    <dimen name="message_bubble_corner_radius">18dp</dimen>
+    <dimen name="message_bubble_corner_radius_sharp">4dp</dimen>
+    <dimen name="message_bubble_padding_horizontal">16dp</dimen>
+    <dimen name="message_bubble_padding_vertical">10dp</dimen>
+    <dimen name="message_bubble_max_width">280dp</dimen>
+    
+    <!-- 浮动按钮 -->
+    <dimen name="fab_size">56dp</dimen>
+    <dimen name="fab_size_sm">40dp</dimen>
+    <dimen name="fab_size_mini">40dp</dimen>
+    <dimen name="fab_corner_radius">16dp</dimen>
+    <dimen name="fab_elevation">6dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    
+    <!-- 对话框 -->
+    <dimen name="dialog_corner_radius">28dp</dimen>
+    <dimen name="dialog_padding">24dp</dimen>
+    <dimen name="dialog_min_width">280dp</dimen>
+    <dimen name="dialog_max_width">560dp</dimen>
+    
+    <!-- 底部抽屉 -->
+    <dimen name="bottom_sheet_corner_radius">28dp</dimen>
+    <dimen name="bottom_sheet_peek_height">56dp</dimen>
+    <dimen name="bottom_sheet_handle_width">32dp</dimen>
+    <dimen name="bottom_sheet_handle_height">4dp</dimen>
+    
+    <!-- 卡片展开高度 -->
+    <dimen name="chip_height">32dp</dimen>
+    <dimen name="chip_corner_radius">8dp</dimen>
+    <dimen name="chip_icon_size">18dp</dimen>
+    
+    <!-- 选项卡 -->
+    <dimen name="tab_height">48dp</dimen>
+    <dimen name="tab_indicator_height">3dp</dimen>
+    <dimen name="tab_padding_horizontal">12dp</dimen>
+    
+    <!-- 进度条 -->
+    <dimen name="progress_bar_height">4dp</dimen>
+    <dimen name="progress_bar_height_sm">2dp</dimen>
+    <dimen name="progress_indicator_size">32dp</dimen>
+    <dimen name="progress_indicator_size_sm">24dp</dimen>
+    
+    <!-- 骨架屏 -->
+    <dimen name="skeleton_corner_radius">8dp</dimen>
+    <dimen name="skeleton_text_height">14dp</dimen>
+    <dimen name="skeleton_title_height">20dp</dimen>
+    
+    <!-- 阴影 -->
+    <dimen name="elevation_none">0dp</dimen>
+    <dimen name="elevation_xs">1dp</dimen>
+    <dimen name="elevation_sm">2dp</dimen>
+    <dimen name="elevation_md">4dp</dimen>
+    <dimen name="elevation_lg">6dp</dimen>
+    <dimen name="elevation_xl">8dp</dimen>
+    <dimen name="elevation_2xl">12dp</dimen>
+    
+    <!-- 图片预览 -->
+    <dimen name="image_preview_toolbar_height">56dp</dimen>
+    <dimen name="image_preview_icon_size">24dp</dimen>
+    
+    <!-- 个人主页头部 -->
+    <dimen name="profile_header_height">180dp</dimen>
+    <dimen name="profile_avatar_size">80dp</dimen>
+    <dimen name="profile_avatar_border">3dp</dimen>
+    <dimen name="profile_stats_height">100dp</dimen>
+</resources>

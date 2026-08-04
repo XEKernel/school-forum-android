@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 图片图标 -->
+    <rect
+        x="3" 
+        y="3" 
+        width="18" 
+        height="18" 
+        rx="2" 
+        ry="2"
+        android:strokeWidth="2"
+        android:strokeColor="#6B7280"
+        android:fillColor="#00000000"/>
+    <!-- 圆形 -->
+    <circle
+        cx="8.5" 
+        cy="8.5" 
+        r="1.5"
+        android:fillColor="#6B7280"/>
+    <!-- 山形 -->
+    <path
+        android:pathData="M21,15L16,10L5,21"
+        android:strokeWidth="2"
+        android:strokeColor="#6B7280"
+        android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+</vector>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- 中心圆形背景 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,54m-40,0a40,40 0,1 1,80 0a40,40 0,1 1,-80 0" />
+    
+    <!-- 论坛图标 - 对话框形状 -->
+    <path
+        android:fillColor="#4361EE"
+        android:pathData="M54,30C42.954,30 34,38.954 34,50C34,56.365 36.863,62.077 41.357,65.971L41.357,78L52.571,70.971C53.686,71.156 54.83,71.258 56,71.258C67.046,71.258 76,62.304 76,51.258C76,40.212 67.046,30 54,30Z" />
+    
+    <!-- 对话点 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,48m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M56,48m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M68,48m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+</vector>

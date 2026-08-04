@@ -1,0 +1,13 @@
+# 构建产物
+build/
+.gradle/
+.idea/
+*.iml
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# 日志与缓存
+*.log
+.kotlin/

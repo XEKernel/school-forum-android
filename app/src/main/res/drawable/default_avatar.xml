@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <!-- 默认头像背景 -->
+    <path
+        android:pathData="M50,50m-48,0a48,48 0,1 1,96 0a48,48 0,1 1,-96 0"
+        android:fillColor="#E5E7EB" />
+    <!-- 头部 -->
+    <path
+        android:pathData="M50,38C54.97,38 59,33.97 59,29C59,24.03 54.97,20 50,20C45.03,20 41,24.03 41,29C41,33.97 45.03,38 50,38Z"
+        android:fillColor="#9CA3AF" />
+    <!-- 身体 -->
+    <path
+        android:pathData="M35,70C35,60.06 41.72,52 50,52C58.28,52 65,60.06 65,70"
+        android:fillColor="#9CA3AF" />
+</vector>

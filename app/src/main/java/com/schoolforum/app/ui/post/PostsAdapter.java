@@ -214,12 +214,22 @@ public class PostsAdapter extends ListAdapter<Post, PostsAdapter.PostViewHolder>
             new DiffUtil.ItemCallback<Post>() {
         @Override
         public boolean areItemsTheSame(@NonNull Post oldItem, @NonNull Post newItem) {
+            // id 可能为 null（服务端异常数据），避免 NPE
+            if (oldItem.getId() == null || newItem.getId() == null) {
+                return oldItem == newItem;
+            }
             return oldItem.getId().equals(newItem.getId());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull Post oldItem, @NonNull Post newItem) {
-            return oldItem.getId().equals(newItem.getId()) 
+            boolean sameId;
+            if (oldItem.getId() == null || newItem.getId() == null) {
+                sameId = oldItem == newItem;
+            } else {
+                sameId = oldItem.getId().equals(newItem.getId());
+            }
+            return sameId
                     && java.util.Objects.equals(oldItem.getLikes(), newItem.getLikes())
                     && java.util.Objects.equals(oldItem.getLiked(), newItem.getLiked());
         }

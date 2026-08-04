@@ -245,21 +245,48 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- 班级（年级由服务端根据入学时间自动计算，仅需选择班级号） -->
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- 入学年份和班级（年级由服务端根据入学年份自动计算，班级仅选班号） -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="班级"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+            android:orientation="horizontal">
 
-            <AutoCompleteTextView
-                android:id="@+id/etClass"
-                android:layout_width="match_parent"
+            <!-- 入学年份 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:hint="入学年份"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <AutoCompleteTextView
+                    android:id="@+id/etYear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 班级 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:hint="班级"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/etClass"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
 
         <!-- 注册按钮 -->
         <com.google.android.material.button.MaterialButton

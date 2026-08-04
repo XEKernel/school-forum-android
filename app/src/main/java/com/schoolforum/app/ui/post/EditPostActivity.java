@@ -82,6 +82,14 @@ public class EditPostActivity extends AppCompatActivity {
     private final List<String> deletedImageUrls = new ArrayList<>(); // 需要删除的已有图片URL
     private EditImagesAdapter imagesAdapter;
     private String visibility = "public"; // 帖子可见性（public/followers/self）
+    private String selectedCategoryId; // 发布栏目
+    private final List<CategoryInfo> categoryList = new ArrayList<>();
+
+    /** 栏目信息（服务端 GET /categories 返回） */
+    private static class CategoryInfo {
+        String id;
+        String name;
+    }
 
     // 工具
     private UserManager userManager;
@@ -127,6 +135,106 @@ public class EditPostActivity extends AppCompatActivity {
         switchAnonymous = findViewById(R.id.switchAnonymous);
         progressBar = findViewById(R.id.progressBar);
         setupVisibilitySpinner();
+        setupCategorySpinner();
+        loadCategories();
+    }
+
+    /**
+     * 初始化栏目选择器（"不选择" + 服务端栏目）
+     */
+    private void setupCategorySpinner() {
+        android.widget.Spinner spinner = findViewById(R.id.spinnerCategory);
+        if (spinner == null) return;
+        List<String> names = new ArrayList<>();
+        names.add("不选择");
+        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, names);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
+                if (position > 0 && position <= categoryList.size()) {
+                    selectedCategoryId = categoryList.get(position - 1).id;
+                } else {
+                    selectedCategoryId = null;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                selectedCategoryId = null;
+            }
+        });
+    }
+
+    /**
+     * 加载服务端栏目列表并填充 Spinner
+     */
+    private void loadCategories() {
+        apiClient.get("/categories", new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                log("加载栏目列表失败: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try {
+                    final String body = response.body() != null ? response.body().string() : "";
+                    mainHandler.post(() -> {
+                        try {
+                            JsonObject root = gson.fromJson(body, JsonObject.class);
+                            if (root != null && root.has("success") && root.get("success").getAsBoolean()
+                                    && root.has("categories")) {
+                                List<String> names = new ArrayList<>();
+                                names.add("不选择");
+                                categoryList.clear();
+                                com.google.gson.JsonArray arr = root.getAsJsonArray("categories");
+                                for (int i = 0; i < arr.size(); i++) {
+                                    JsonObject c = arr.get(i).getAsJsonObject();
+                                    if (c.has("id") && c.has("name")) {
+                                        CategoryInfo info = new CategoryInfo();
+                                        info.id = c.get("id").getAsString();
+                                        info.name = c.get("name").getAsString();
+                                        categoryList.add(info);
+                                        names.add(info.name);
+                                    }
+                                }
+                                android.widget.Spinner spinner = findViewById(R.id.spinnerCategory);
+                                if (spinner != null) {
+                                    android.widget.ArrayAdapter<String> adapter =
+                                            new android.widget.ArrayAdapter<>(EditPostActivity.this,
+                                                    android.R.layout.simple_spinner_item, names);
+                                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                    spinner.setAdapter(adapter);
+                                    // 编辑模式回填
+                                    if (selectedCategoryId != null) {
+                                        for (int i = 0; i < categoryList.size(); i++) {
+                                            if (selectedCategoryId.equals(categoryList.get(i).id)) {
+                                                spinner.setSelection(i + 1);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            log("解析栏目列表失败: " + e.getMessage());
+                        }
+                    });
+                } catch (Exception e) {
+                    log("读取栏目列表失败: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    /**
+     * 编辑模式：设置栏目选中项
+     */
+    private void setCategorySelection(String categoryId) {
+        this.selectedCategoryId = categoryId;
     }
 
     /**
@@ -356,6 +464,10 @@ public class EditPostActivity extends AppCompatActivity {
                         final String postVisibility = postData.has("visibility") && !postData.get("visibility").isJsonNull()
                                 ? postData.get("visibility").getAsString() : "public";
 
+                        // 获取栏目
+                        final String postCategoryId = postData.has("categoryId") && !postData.get("categoryId").isJsonNull()
+                                ? postData.get("categoryId").getAsString() : null;
+
                         mainHandler.post(() -> {
                             etContent.setText(content);
                             switchAnonymous.setChecked(anonymous);
@@ -382,6 +494,9 @@ public class EditPostActivity extends AppCompatActivity {
 
                             // 设置可见性
                             setVisibilitySelection(postVisibility);
+
+                            // 设置栏目（loadCategories 完成后按此回填 Spinner）
+                            setCategorySelection(postCategoryId);
 
                             showLoading(false);
                         });
@@ -431,6 +546,9 @@ public class EditPostActivity extends AppCompatActivity {
                 params.put("content", content);
                 params.put("anonymous", anonymous ? "true" : "false");
                 params.put("visibility", visibility);
+                if (selectedCategoryId != null) {
+                    params.put("categoryId", selectedCategoryId);
+                }
                 params.put("deviceInfo", com.schoolforum.app.utils.DeviceUtils.getDeviceInfo());
 
                 // 编辑模式：传删除的已有图片列表（服务端 updatePost 支持 deletedImages 数组）

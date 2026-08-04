@@ -23,6 +23,7 @@ import java.util.Map;
 public class ChangeQQActivity extends AppCompatActivity {
 
     private TextInputEditText etQQ;
+    private TextInputEditText etCurrentPassword;
     private android.widget.Button btnSubmit;
     private final Gson gson = new Gson();
 
@@ -37,6 +38,7 @@ public class ChangeQQActivity extends AppCompatActivity {
 
     private void initViews() {
         etQQ = findViewById(R.id.etQQ);
+        etCurrentPassword = findViewById(R.id.etCurrentPassword);
         btnSubmit = findViewById(R.id.btnSubmit);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
@@ -85,8 +87,17 @@ public class ChangeQQActivity extends AppCompatActivity {
             return;
         }
 
+        // 服务端要求验证当前密码（安全加固）
+        String currentPassword = etCurrentPassword != null && etCurrentPassword.getText() != null
+                ? etCurrentPassword.getText().toString() : "";
+        if (TextUtils.isEmpty(currentPassword)) {
+            Toast.makeText(this, "请输入当前密码", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Map<String, String> params = new HashMap<>();
         params.put("newQQ", qq);
+        params.put("currentPassword", currentPassword);
 
         btnSubmit.setEnabled(false);
         ApiClient.getInstance(this).postForm("/change-qq", params,

@@ -45,6 +45,25 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     public void setOnCommentActionListener(OnCommentActionListener listener) {
         this.listener = listener;
     }
+
+    /**
+     * 嵌套 RecyclerView 高度修复：
+     * wrap_content 嵌套时外层无法测量内层高度（高度为 0 不显示），
+     * 此处测量 adapter 内容高度后设置到 recyclerView 的 LayoutParams。
+     */
+    static void applyNestedHeight(final RecyclerView recyclerView, final NestedRepliesAdapter adapter) {
+        if (recyclerView == null || adapter == null) return;
+        recyclerView.post(() -> {
+            int width = recyclerView.getWidth();
+            if (width <= 0) return;
+            int height = adapter.measureContentHeight(width);
+            if (height > 0) {
+                ViewGroup.LayoutParams lp = recyclerView.getLayoutParams();
+                lp.height = height;
+                recyclerView.setLayoutParams(lp);
+            }
+        });
+    }
     
     public void setCurrentUserId(String userId) {
         this.currentUserId = userId;
@@ -158,6 +177,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 rvReplies.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
                 NestedRepliesAdapter repliesAdapter = new NestedRepliesAdapter(1, comment.getId());
                 repliesAdapter.setReplies(replies);
+                // 嵌套 RecyclerView 高度修复（wrap_content 内层高度为 0 问题）
+                applyNestedHeight(rvReplies, repliesAdapter);
                 repliesAdapter.setCurrentUserId(currentUserId);
                 repliesAdapter.setPostAuthorId(postAuthorId);
                 repliesAdapter.setOnReplyActionListener(new NestedRepliesAdapter.OnReplyActionListener() {
@@ -296,33 +317,34 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
 
         /**
-         * wrap_content 嵌套 RecyclerView 高度修复：
+         * 计算嵌套回复列表的内容总高度（wrap_content 嵌套 RecyclerView 高度修复）：
          * 外层 RecyclerView 无法测量内层 wrap_content RecyclerView 的高度，
          * 导致回复列表高度为 0 不显示。此处逐项测量累加得到真实高度。
+         *
+         * @param widthPx 测量宽度（AT_MOST 约束）
+         * @return 内容总高度（px），至少为 1
          */
-        @Override
-        public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            if (replies.isEmpty()) {
-                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-                return;
-            }
+        public int measureContentHeight(int widthPx) {
+            if (replies.isEmpty()) return 0;
+            int totalHeight = 0;
             try {
-                int totalHeight = 0;
-                int widthSize = android.view.View.MeasureSpec.getSize(widthMeasureSpec);
                 for (int i = 0; i < replies.size(); i++) {
                     ReplyViewHolder holder = (ReplyViewHolder) onCreateViewHolder(
-                            new android.widget.FrameLayout(getContext()), 0);
+                            new android.widget.FrameLayout(itemViewContext()), 0);
                     holder.bind(replies.get(i), null, i, depth, commentId, currentUserId, postAuthorId);
                     holder.itemView.measure(
-                            android.view.View.MeasureSpec.makeMeasureSpec(widthSize, android.view.View.MeasureSpec.AT_MOST),
+                            android.view.View.MeasureSpec.makeMeasureSpec(widthPx, android.view.View.MeasureSpec.AT_MOST),
                             android.view.View.MeasureSpec.makeMeasureSpec(0, android.view.View.MeasureSpec.UNSPECIFIED));
                     totalHeight += holder.itemView.getMeasuredHeight();
                 }
-                setMeasuredDimension(widthSize, Math.max(1, totalHeight));
-            } catch (Exception e) {
-                // 测量失败时回退默认行为
-                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            } catch (Exception ignored) {
+                // 测量失败时返回 0，由调用方回退
             }
+            return totalHeight;
+        }
+
+        private android.content.Context itemViewContext() {
+            return getContext();
         }
 
         static class ReplyViewHolder extends RecyclerView.ViewHolder {
@@ -393,6 +415,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                     // 创建下一层级的适配器（depth + 1）
                     NestedRepliesAdapter nestedAdapter = new NestedRepliesAdapter(depth + 1, commentId);
                     nestedAdapter.setReplies(nestedReplies);
+                    // 嵌套 RecyclerView 高度修复（递归层级同样需要）
+                    applyNestedHeight(rvNestedReplies, nestedAdapter);
                     nestedAdapter.setCurrentUserId(currentUserId);
                     nestedAdapter.setPostAuthorId(postAuthorId);
                     nestedAdapter.setOnReplyActionListener(new OnReplyActionListener() {

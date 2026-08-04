@@ -88,17 +88,11 @@ public class MainActivity extends AppCompatActivity {
         
         logger = FileLogger.getInstance(this);
         
-        // 检查登录状态
+        // 检查登录状态（未登录进入游客模式：可浏览帖子，需登录操作时再提示）
         boolean isLoggedIn = UserManager.getInstance(this).isLoggedIn();
         log("onCreate: isLoggedIn=" + isLoggedIn);
-        if (!isLoggedIn) {
-            log("Not logged in, starting LoginActivity");
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-            return;
-        }
         
-        log("Logged in, showing main content");
+        log(isLoggedIn ? "Logged in, showing main content" : "Guest mode, showing main content");
         setContentView(R.layout.activity_main);
         
         initLaunchers();
@@ -223,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
                 showPostsFragment();
                 return true;
             } else if (itemId == R.id.nav_following) {
+                if (!requireLogin()) return false;
                 startActivity(new Intent(this, FollowingActivity.class));
                 // 清除徽章
                 clearFollowingBadge();
@@ -233,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
                 }, 300);
                 return false;
             } else if (itemId == R.id.nav_publish) {
+                if (!requireLogin()) return false;
                 // 打开发布帖子页面
                 startActivity(new Intent(this, com.schoolforum.app.ui.post.EditPostActivity.class));
                 // 延迟重置导航选中状态，让用户能够返回
@@ -243,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
                 }, 300);
                 return false;
             } else if (itemId == R.id.nav_profile) {
+                if (!requireLogin()) return false;
                 startActivity(new Intent(this, ProfileActivity.class));
                 // 延迟重置导航选中状态，让用户能够返回
                 bottomNav.postDelayed(() -> {
@@ -255,6 +252,19 @@ public class MainActivity extends AppCompatActivity {
             
             return false;
         });
+    }
+    
+    /**
+     * 需要登录的操作统一拦截：未登录提示并跳转登录页
+     * @return true 表示已登录（放行），false 表示游客（已拦截）
+     */
+    private boolean requireLogin() {
+        if (UserManager.getInstance(this).isLoggedIn()) {
+            return true;
+        }
+        Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, LoginActivity.class));
+        return false;
     }
     
     /**

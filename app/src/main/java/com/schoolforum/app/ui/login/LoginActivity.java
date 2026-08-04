@@ -125,6 +125,8 @@ public class LoginActivity extends AppCompatActivity {
     private void navigateToMain() {
         log("navigateToMain: starting MainActivity");
         Intent intent = new Intent(this, MainActivity.class);
+        // 复用已有的 MainActivity 实例（游客模式时栈中可能已存在），避免叠加
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
     }

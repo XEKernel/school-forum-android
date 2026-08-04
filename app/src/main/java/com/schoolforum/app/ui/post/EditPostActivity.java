@@ -104,6 +104,14 @@ public class EditPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_post);
 
+        // 游客拦截：发帖/编辑需要登录
+        if (!UserManager.getInstance(this).isLoggedIn()) {
+            Toast.makeText(this, "请先登录后发帖", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, com.schoolforum.app.ui.login.LoginActivity.class));
+            finish();
+            return;
+        }
+
         initUtils();
         initViews();
         setupToolbar();

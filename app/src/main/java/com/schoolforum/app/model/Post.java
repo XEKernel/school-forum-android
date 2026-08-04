@@ -37,7 +37,10 @@ public class Post {
     
     @SerializedName("anonymous")
     private Boolean anonymous;
-    
+
+    @SerializedName("visibility")
+    private String visibility;
+
     @SerializedName("timestamp")
     private String timestamp;
     
@@ -239,6 +242,9 @@ public class Post {
     
     public Boolean getAnonymous() { return anonymous; }
     public void setAnonymous(Boolean anonymous) { this.anonymous = anonymous; }
+    
+    public String getVisibility() { return visibility; }
+    public void setVisibility(String visibility) { this.visibility = visibility; }
     
     public String getTimestamp() { return timestamp; }
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }

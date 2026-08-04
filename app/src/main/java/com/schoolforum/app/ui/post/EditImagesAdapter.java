@@ -17,17 +17,29 @@ import java.util.List;
 
 /**
  * 编辑帖子时的图片适配器
+ * 支持两种图片项：新选图片（uri）与已有图片（url，编辑模式）
  */
 public class EditImagesAdapter extends RecyclerView.Adapter<EditImagesAdapter.ViewHolder> {
 
-    private final List<Uri> images;
+    /** 图片项：uri 为新选图片，url 为服务端已有图片（二选一） */
+    public static class EditImageItem {
+        public Uri uri;
+        public String url;
+
+        public EditImageItem(Uri uri) { this.uri = uri; }
+        public EditImageItem(String url) { this.url = url; }
+
+        public boolean isExisting() { return url != null; }
+    }
+
+    private final List<EditImageItem> images;
     private final OnImageRemoveListener removeListener;
 
     public interface OnImageRemoveListener {
         void onRemove(int position);
     }
 
-    public EditImagesAdapter(List<Uri> images, OnImageRemoveListener removeListener) {
+    public EditImagesAdapter(List<EditImageItem> images, OnImageRemoveListener removeListener) {
         this.images = images;
         this.removeListener = removeListener;
     }
@@ -42,17 +54,28 @@ public class EditImagesAdapter extends RecyclerView.Adapter<EditImagesAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Uri uri = images.get(position);
+        EditImageItem item = images.get(position);
         Context context = holder.itemView.getContext();
 
-        Glide.with(context)
-            .load(uri)
-            .centerCrop()
-            .into(holder.ivImage);
+        if (item.isExisting()) {
+            // 已有图片：url 可能是相对路径，补全 BASE_URL
+            String url = item.url.startsWith("http") ? item.url
+                    : com.schoolforum.app.network.ApiClient.getBaseUrl() + item.url;
+            Glide.with(context)
+                .load(url)
+                .centerCrop()
+                .into(holder.ivImage);
+        } else {
+            Glide.with(context)
+                .load(item.uri)
+                .centerCrop()
+                .into(holder.ivImage);
+        }
 
         holder.ivRemove.setOnClickListener(v -> {
-            if (removeListener != null) {
-                removeListener.onRemove(holder.getAdapterPosition());
+            int pos = holder.getAdapterPosition();
+            if (removeListener != null && pos != RecyclerView.NO_POSITION) {
+                removeListener.onRemove(pos);
             }
         });
     }

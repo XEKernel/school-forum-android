@@ -78,10 +78,10 @@ public class EditPostActivity extends AppCompatActivity {
 
     // 数据
     private String editPostId; // 编辑帖子时的ID
-    private List<Uri> selectedImages = new ArrayList<>();
-    private List<String> existingImageUrls = new ArrayList<>(); // 已有图片URL
-    private List<String> deletedImageUrls = new ArrayList<>(); // 需要删除的图片URL
+    private final List<EditImagesAdapter.EditImageItem> imageItems = new ArrayList<>();
+    private final List<String> deletedImageUrls = new ArrayList<>(); // 需要删除的已有图片URL
     private EditImagesAdapter imagesAdapter;
+    private String visibility = "public"; // 帖子可见性（public/followers/self）
 
     // 工具
     private UserManager userManager;
@@ -126,6 +126,42 @@ public class EditPostActivity extends AppCompatActivity {
         layoutAddImage = findViewById(R.id.layoutAddImage);
         switchAnonymous = findViewById(R.id.switchAnonymous);
         progressBar = findViewById(R.id.progressBar);
+        setupVisibilitySpinner();
+    }
+
+    /**
+     * 初始化可见性选择器
+     */
+    private void setupVisibilitySpinner() {
+        android.widget.Spinner spinner = findViewById(R.id.spinnerVisibility);
+        if (spinner == null) return;
+        String[] items = {"公开", "仅粉丝", "仅自己"};
+        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, items);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
+                visibility = position == 1 ? "followers" : (position == 2 ? "self" : "public");
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                visibility = "public";
+            }
+        });
+    }
+
+    /**
+     * 编辑模式：根据帖子可见性回填选择器
+     */
+    private void setVisibilitySelection(String postVisibility) {
+        android.widget.Spinner spinner = findViewById(R.id.spinnerVisibility);
+        if (spinner == null) return;
+        int pos = "self".equals(postVisibility) ? 2 : ("followers".equals(postVisibility) ? 1 : 0);
+        spinner.setSelection(pos);
+        visibility = postVisibility;
     }
 
     private void setupToolbar() {
@@ -143,7 +179,7 @@ public class EditPostActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        imagesAdapter = new EditImagesAdapter(selectedImages, this::removeImage);
+        imagesAdapter = new EditImagesAdapter(imageItems, this::removeImage);
         rvImages.setLayoutManager(new GridLayoutManager(this, 3));
         rvImages.setAdapter(imagesAdapter);
     }
@@ -173,12 +209,12 @@ public class EditPostActivity extends AppCompatActivity {
     }
 
     private void updatePublishButton() {
-        boolean hasContent = !etContent.getText().toString().trim().isEmpty() || !selectedImages.isEmpty();
+        boolean hasContent = !etContent.getText().toString().trim().isEmpty() || !imageItems.isEmpty();
         tvPublish.setEnabled(hasContent);
     }
 
     private boolean hasContent() {
-        return !etContent.getText().toString().trim().isEmpty() || !selectedImages.isEmpty();
+        return !etContent.getText().toString().trim().isEmpty() || !imageItems.isEmpty();
     }
 
     private void showDiscardDialog() {
@@ -225,7 +261,7 @@ public class EditPostActivity extends AppCompatActivity {
     }
 
     private void openImagePicker() {
-        int remaining = MAX_IMAGES - selectedImages.size();
+        int remaining = MAX_IMAGES - imageItems.size();
         if (remaining <= 0) {
             Toast.makeText(this, "最多只能添加" + MAX_IMAGES + "张图片", Toast.LENGTH_SHORT).show();
             return;
@@ -245,13 +281,13 @@ public class EditPostActivity extends AppCompatActivity {
             if (clipData != null) {
                 for (int i = 0; i < clipData.getItemCount(); i++) {
                     Uri uri = clipData.getItemAt(i).getUri();
-                    if (selectedImages.size() < MAX_IMAGES) {
-                        selectedImages.add(uri);
+                    if (imageItems.size() < MAX_IMAGES) {
+                        imageItems.add(new EditImagesAdapter.EditImageItem(uri));
                     }
                 }
             } else if (data.getData() != null) {
-                if (selectedImages.size() < MAX_IMAGES) {
-                    selectedImages.add(data.getData());
+                if (imageItems.size() < MAX_IMAGES) {
+                    imageItems.add(new EditImagesAdapter.EditImageItem(data.getData()));
                 }
             }
             imagesAdapter.notifyDataSetChanged();
@@ -261,14 +297,20 @@ public class EditPostActivity extends AppCompatActivity {
     }
 
     private void removeImage(int position) {
-        selectedImages.remove(position);
+        if (position < 0 || position >= imageItems.size()) return;
+        EditImagesAdapter.EditImageItem item = imageItems.get(position);
+        // 删除已有图片时记录 URL，提交时告知服务端删除
+        if (item.isExisting() && item.url != null && !deletedImageUrls.contains(item.url)) {
+            deletedImageUrls.add(item.url);
+        }
+        imageItems.remove(position);
         imagesAdapter.notifyDataSetChanged();
         updateAddImageButton();
         updatePublishButton();
     }
 
     private void updateAddImageButton() {
-        layoutAddImage.setVisibility(selectedImages.size() >= MAX_IMAGES ? View.GONE : View.VISIBLE);
+        layoutAddImage.setVisibility(imageItems.size() >= MAX_IMAGES ? View.GONE : View.VISIBLE);
     }
 
     private void loadPostData() {
@@ -309,27 +351,38 @@ public class EditPostActivity extends AppCompatActivity {
                         // 获取匿名状态
                         final boolean anonymous = postData.has("anonymous") && !postData.get("anonymous").isJsonNull()
                                 && postData.get("anonymous").getAsBoolean();
-                        
+
+                        // 获取可见性
+                        final String postVisibility = postData.has("visibility") && !postData.get("visibility").isJsonNull()
+                                ? postData.get("visibility").getAsString() : "public";
+
                         mainHandler.post(() -> {
                             etContent.setText(content);
                             switchAnonymous.setChecked(anonymous);
-                            
-                            // 加载已有图片
+
+                            // 加载已有图片（url 项展示，可删除）
                             if (postData.has("images") && !postData.get("images").isJsonNull()) {
                                 try {
                                     com.google.gson.JsonArray imagesArray = postData.getAsJsonArray("images");
+                                    imageItems.clear();
                                     for (int i = 0; i < imagesArray.size(); i++) {
                                         JsonObject imgObj = imagesArray.get(i).getAsJsonObject();
-                                        if (imgObj.has("url")) {
-                                            existingImageUrls.add(imgObj.get("url").getAsString());
+                                        if (imgObj.has("url") && !imgObj.get("url").isJsonNull()) {
+                                            imageItems.add(new EditImagesAdapter.EditImageItem(
+                                                    imgObj.get("url").getAsString()));
                                         }
                                     }
-                                    // TODO: 显示已有图片
+                                    imagesAdapter.notifyDataSetChanged();
+                                    updateAddImageButton();
+                                    updatePublishButton();
                                 } catch (Exception e) {
                                     Log.e(TAG, "加载图片失败: " + e.getMessage());
                                 }
                             }
-                            
+
+                            // 设置可见性
+                            setVisibilitySelection(postVisibility);
+
                             showLoading(false);
                         });
                     } else {
@@ -355,7 +408,7 @@ public class EditPostActivity extends AppCompatActivity {
         String content = etContent.getText().toString().trim();
         boolean anonymous = switchAnonymous.isChecked();
 
-        if (content.isEmpty() && selectedImages.isEmpty()) {
+        if (content.isEmpty() && imageItems.isEmpty()) {
             Toast.makeText(this, "请输入内容或添加图片", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -373,23 +426,26 @@ public class EditPostActivity extends AppCompatActivity {
         // 构建表单数据
         executor.execute(() -> {
             try {
-                // 准备请求参数
+                // 准备请求参数（身份由服务端从 JWT 取）
                 java.util.Map<String, Object> params = new java.util.HashMap<>();
-                params.put("userId", user.getId());
-                params.put("username", user.getUsername());
-                params.put("school", user.getSchool() != null ? user.getSchool() : "");
-                params.put("grade", user.getGrade() != null ? user.getGrade() : "");
-                params.put("className", user.getClassName() != null ? user.getClassName() : "");
                 params.put("content", content);
                 params.put("anonymous", anonymous ? "true" : "false");
+                params.put("visibility", visibility);
                 params.put("deviceInfo", com.schoolforum.app.utils.DeviceUtils.getDeviceInfo());
 
-                // 准备图片文件
+                // 编辑模式：传删除的已有图片列表（服务端 updatePost 支持 deletedImages 数组）
+                if (editPostId != null && !deletedImageUrls.isEmpty()) {
+                    params.put("deletedImages", new com.google.gson.Gson().toJson(deletedImageUrls));
+                }
+
+                // 收集新选图片文件
                 List<File> imageFiles = new ArrayList<>();
-                for (Uri uri : selectedImages) {
-                    File file = uriToFile(uri);
-                    if (file != null) {
-                        imageFiles.add(file);
+                for (EditImagesAdapter.EditImageItem item : imageItems) {
+                    if (!item.isExisting() && item.uri != null) {
+                        File file = uriToFile(item.uri);
+                        if (file != null) {
+                            imageFiles.add(file);
+                        }
                     }
                 }
 

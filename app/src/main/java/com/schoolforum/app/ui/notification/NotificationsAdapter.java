@@ -95,14 +95,19 @@ public class NotificationsAdapter extends ListAdapter<Notification, Notification
             int iconRes = getIconResource(notification.getType());
             ivTypeIcon.setImageResource(iconRes);
 
-            // 用户名
-            tvUsername.setText(notification.getFromUsername());
+            // 系统/群发通知：显示"系统消息"，不显示来源用户
+            boolean isSystem = "system".equals(notification.getType());
+            if (isSystem) {
+                tvUsername.setText("系统消息");
+            } else {
+                tvUsername.setText(notification.getFromUsername());
+            }
 
             // 通知内容
             tvContent.setText(notification.getDisplayText());
 
-            // 帖子标题
-            if (notification.getPostTitle() != null && !notification.getPostTitle().isEmpty()) {
+            // 帖子标题（系统/群发通知不显示帖子标题）
+            if (!isSystem && notification.getPostTitle() != null && !notification.getPostTitle().isEmpty()) {
                 tvPostTitle.setText(notification.getPostTitle());
                 tvPostTitle.setVisibility(View.VISIBLE);
             } else {

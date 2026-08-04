@@ -43,6 +43,19 @@ public class Notification {
     @SerializedName("content")
     private String content;
 
+    // 系统通知/群发消息相关
+    @SerializedName("systemType")
+    private String systemType; // new_device / broadcast 等
+
+    @SerializedName("title")
+    private String title;      // 群发消息标题（broadcast）
+
+    @SerializedName("message")
+    private String message;    // 群发/系统消息正文
+
+    @SerializedName("target")
+    private String target;     // user / all（广播）
+
     // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -79,6 +92,18 @@ public class Notification {
     
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
+
+    public String getSystemType() { return systemType; }
+    public void setSystemType(String systemType) { this.systemType = systemType; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+
+    public String getTarget() { return target; }
+    public void setTarget(String target) { this.target = target; }
     
     /**
      * 获取通知显示文本
@@ -96,6 +121,16 @@ public class Notification {
             case "follow":
                 return fromUsername + " 关注了你";
             case "system":
+                // 群发消息（broadcast）：标题 + 正文；新设备提醒等系统消息：正文
+                if ("broadcast".equals(systemType)) {
+                    String titlePart = (title != null && !title.isEmpty()) ? title + "\n" : "";
+                    String body = (message != null && !message.isEmpty()) ? message
+                            : (content != null ? content : "系统通知");
+                    return titlePart + body;
+                }
+                if (message != null && !message.isEmpty()) {
+                    return message;
+                }
                 return content != null ? content : "系统通知";
             default:
                 return fromUsername + " 与你互动";

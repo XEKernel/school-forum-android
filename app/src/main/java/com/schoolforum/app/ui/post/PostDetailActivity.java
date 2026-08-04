@@ -183,6 +183,11 @@ public class PostDetailActivity extends AppCompatActivity {
             public void onCommentLike(Post.Comment comment, int position) {
                 toggleCommentLike(comment, position);
             }
+
+            @Override
+            public void onReplyLike(Post.Comment comment, Post.Reply reply) {
+                toggleReplyLike(comment, reply);
+            }
         });
         rvComments.setAdapter(commentsAdapter);
 
@@ -445,6 +450,54 @@ public class PostDetailActivity extends AppCompatActivity {
                 }, null);
     }
     
+    private void toggleReplyLike(Post.Comment comment, Post.Reply reply) {
+        if (currentPost == null || comment == null || reply == null) return;
+        String userId = UserManager.getInstance(this).getCurrentUserId();
+        if (userId == null) {
+            Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, String> params = new HashMap<>();
+        ApiClient.getInstance(this).postForm(
+                "/posts/" + currentPost.getId() + "/comments/" + comment.getId()
+                        + "/replies/" + reply.getId() + "/like", params,
+                new ApiClient.ApiCallback<String>() {
+                    @Override
+                    public void onSuccess(String responseBody) {
+                        runOnUiThread(() -> {
+                            try {
+                                CommentLikeResponse resp = gson.fromJson(responseBody, CommentLikeResponse.class);
+                                if (resp != null && resp.success) {
+                                    reply.setLikes(resp.likes);
+                                    if (reply.getLikedBy() == null) {
+                                        reply.setLikedBy(new ArrayList<>());
+                                    }
+                                    if (resp.liked) {
+                                        if (!reply.getLikedBy().contains(userId)) {
+                                            reply.getLikedBy().add(userId);
+                                        }
+                                    } else {
+                                        reply.getLikedBy().remove(userId);
+                                    }
+                                    // 回复在嵌套 adapter 内，整体刷新评论列表以同步点赞状态
+                                    commentsAdapter.notifyDataSetChanged();
+                                } else {
+                                    showError(resp != null && resp.message != null ? resp.message : "操作失败");
+                                }
+                            } catch (Exception e) {
+                                showError("操作失败");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        runOnUiThread(() -> showError(error));
+                    }
+                }, null);
+    }
+
     private void sendComment() {
         if (currentPost == null) return;
         

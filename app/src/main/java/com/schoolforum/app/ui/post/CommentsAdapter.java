@@ -210,6 +210,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                             listener.onUserClick(userId);
                         }
                     }
+
+                    @Override
+                    public void onReplyLike(Reply reply) {
+                        if (listener != null) {
+                            listener.onReplyLike(comment, reply);
+                        }
+                    }
                 });
                 rvReplies.setAdapter(repliesAdapter);
             } else {
@@ -370,6 +377,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             private final TextView tvContent;
             private final TextView tvTime;
             private final TextView btnReply;
+            private final LinearLayout btnReplyLike;
+            private final ImageView ivReplyLike;
+            private final TextView tvReplyLikes;
+            private final TextView tvMoreRepliesHint;
             private final TextView tvReplyTo;
             private final TextView tvReplyToUsername;
             private final LinearLayout layoutNestedReplies;
@@ -382,6 +393,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 tvContent = itemView.findViewById(R.id.tvContent);
                 tvTime = itemView.findViewById(R.id.tvTime);
                 btnReply = itemView.findViewById(R.id.btnReply);
+                btnReplyLike = itemView.findViewById(R.id.btnReplyLike);
+                ivReplyLike = itemView.findViewById(R.id.ivReplyLike);
+                tvReplyLikes = itemView.findViewById(R.id.tvReplyLikes);
+                tvMoreRepliesHint = itemView.findViewById(R.id.tvMoreRepliesHint);
                 tvReplyTo = itemView.findViewById(R.id.tvReplyTo);
                 tvReplyToUsername = itemView.findViewById(R.id.tvReplyToUsername);
                 layoutNestedReplies = itemView.findViewById(R.id.layoutNestedReplies);
@@ -417,6 +432,37 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 tvTime.setText(reply.getTimestamp() != null 
                         ? TimeUtils.formatRelativeTime(reply.getTimestamp()) : "");
                 tvContent.setText(reply.getContent() != null ? reply.getContent() : "");
+
+                // 回复点赞状态与点击
+                boolean replyLiked = reply.isLikedByUser(currentUserId);
+                int replyLikeCount = reply.getLikes() != null ? reply.getLikes() : 0;
+                if (tvReplyLikes != null) {
+                    if (replyLikeCount > 0) {
+                        tvReplyLikes.setVisibility(View.VISIBLE);
+                        tvReplyLikes.setText(String.valueOf(replyLikeCount));
+                    } else {
+                        tvReplyLikes.setVisibility(View.GONE);
+                    }
+                }
+                if (ivReplyLike != null) {
+                    ivReplyLike.setImageResource(replyLiked ? R.drawable.ic_like_filled : R.drawable.ic_like_outline);
+                    ivReplyLike.setColorFilter(replyLiked
+                            ? itemView.getContext().getColor(R.color.primary)
+                            : itemView.getContext().getColor(R.color.text_hint));
+                }
+                if (btnReplyLike != null) {
+                    btnReplyLike.setOnClickListener(v -> {
+                        if (listener != null) {
+                            listener.onReplyLike(reply);
+                        }
+                    });
+                }
+
+                // 超过嵌套上限：显示折叠提示
+                if (tvMoreRepliesHint != null) {
+                    tvMoreRepliesHint.setVisibility(
+                            Boolean.TRUE.equals(reply.getHasMoreReplies()) ? View.VISIBLE : View.GONE);
+                }
 
                 // 显示回复给谁
                 if (reply.getReplyToUsername() != null && !reply.getReplyToUsername().isEmpty()) {
@@ -467,6 +513,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                         public void onUserClick(String userId) {
                             if (listener != null) {
                                 listener.onUserClick(userId);
+                            }
+                        }
+
+                        @Override
+                        public void onReplyLike(Reply nestedReply) {
+                            if (listener != null) {
+                                listener.onReplyLike(nestedReply);
                             }
                         }
                     });
@@ -538,6 +591,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             void onDeleteReply(String commentId, String replyId, String nestedReplyId);
             void onReportReply(String commentId, String replyId);
             void onUserClick(String userId);
+            void onReplyLike(Reply reply);
         }
     }
 
@@ -552,5 +606,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         void onReportComment(String commentId);
         void onReportReply(String commentId, String replyId);
         void onCommentLike(Comment comment, int position);
+        void onReplyLike(Comment comment, Reply reply);
     }
 }

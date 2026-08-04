@@ -200,6 +200,9 @@ public class Post {
         @SerializedName("likedBy")
         private List<String> likedBy;
 
+        @SerializedName("hasMoreReplies")
+        private Boolean hasMoreReplies;
+
         public String getId() { return id; }
         public void setId(String id) { this.id = id; }
         
@@ -238,6 +241,9 @@ public class Post {
 
         public List<String> getLikedBy() { return likedBy; }
         public void setLikedBy(List<String> likedBy) { this.likedBy = likedBy; }
+
+        public Boolean getHasMoreReplies() { return hasMoreReplies; }
+        public void setHasMoreReplies(Boolean hasMoreReplies) { this.hasMoreReplies = hasMoreReplies; }
 
         public boolean isLikedByUser(String userId) {
             return userId != null && likedBy != null && likedBy.contains(userId);

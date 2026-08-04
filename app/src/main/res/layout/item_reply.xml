@@ -85,6 +85,35 @@
                     android:textColor="@color/text_hint"
                     android:textSize="11sp" />
 
+                <!-- 回复点赞 -->
+                <LinearLayout
+                    android:id="@+id/btnReplyLike"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:background="@drawable/ripple_rounded"
+                    android:padding="2dp">
+
+                    <ImageView
+                        android:id="@+id/ivReplyLike"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_like_outline" />
+
+                    <TextView
+                        android:id="@+id/tvReplyLikes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:textColor="@color/text_hint"
+                        android:textSize="11sp"
+                        android:visibility="gone"
+                        tools:text="5" />
+
+                </LinearLayout>
+
                 <TextView
                     android:id="@+id/btnReply"
                     android:layout_width="wrap_content"
@@ -101,6 +130,18 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <!-- 超过嵌套上限的折叠提示 -->
+    <TextView
+        android:id="@+id/tvMoreRepliesHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="4dp"
+        android:text="回复层级已达上限，更深层回复已折叠"
+        android:textColor="@color/text_hint"
+        android:textSize="11sp"
+        android:visibility="gone" />
 
     <!-- 嵌套回复列表 -->
     <LinearLayout

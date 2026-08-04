@@ -303,10 +303,10 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostClickL
         chip.setTextSize(13);
         chip.setMinWidth(0);
         chip.setMinHeight(0);
-        chip.setPadding(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics()),
-                android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()),
-                android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics()),
-                android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
+        chip.setPadding((int) android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics()),
+                (int) android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()),
+                (int) android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics()),
+                (int) android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
         android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
                 android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
                 android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);

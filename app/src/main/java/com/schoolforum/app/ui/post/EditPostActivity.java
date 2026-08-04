@@ -97,6 +97,7 @@ public class EditPostActivity extends AppCompatActivity {
     private ExecutorService executor;
     private Handler mainHandler;
     private FileLogger logger;
+    private final Gson gson = new Gson();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -123,6 +124,13 @@ public class EditPostActivity extends AppCompatActivity {
         executor = Executors.newSingleThreadExecutor();
         mainHandler = new Handler(Looper.getMainLooper());
         logger = FileLogger.getInstance(this);
+    }
+
+    private void log(String message) {
+        Log.d(TAG, message);
+        if (logger != null) {
+            logger.d(TAG, message);
+        }
     }
 
     private void initViews() {

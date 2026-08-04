@@ -423,7 +423,9 @@ public class PostDetailActivity extends AppCompatActivity {
         // 带图走 multipart（服务端 addComment 为 upload.array('images', 5)）
         File imageFile = selectedCommentImage != null ? prepareCommentImage(selectedCommentImage) : null;
         if (imageFile != null) {
-            ApiClient.getInstance(this).postMultipart("/posts/" + currentPost.getId() + "/comments", params,
+            Map<String, Object> multiParams = new HashMap<>();
+            multiParams.put("content", content);
+            ApiClient.getInstance(this).postMultipart("/posts/" + currentPost.getId() + "/comments", multiParams,
                 java.util.Collections.singletonList(imageFile), "images", new okhttp3.Callback() {
                     @Override
                     public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
@@ -573,7 +575,12 @@ public class PostDetailActivity extends AppCompatActivity {
         // 带图走 multipart（服务端 replyComment 为 upload.array('images', 5)）
         File imageFile = selectedCommentImage != null ? prepareCommentImage(selectedCommentImage) : null;
         if (imageFile != null) {
-            ApiClient.getInstance(this).postMultipart(url, params,
+            Map<String, Object> multiParams = new HashMap<>();
+            multiParams.put("content", content);
+            if (replyingToReply != null && replyingToReply.getId() != null) {
+                multiParams.put("replyToId", replyingToReply.getId());
+            }
+            ApiClient.getInstance(this).postMultipart(url, multiParams,
                 java.util.Collections.singletonList(imageFile), "images", new okhttp3.Callback() {
                     @Override
                     public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {

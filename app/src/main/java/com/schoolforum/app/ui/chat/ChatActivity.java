@@ -62,7 +62,7 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         public void run() {
             if (!isFinishing() && !isDestroyed()) {
-                refreshMessages();
+                refreshMessages(false);
                 pollHandler.postDelayed(this, POLL_INTERVAL_MS);
             }
         }

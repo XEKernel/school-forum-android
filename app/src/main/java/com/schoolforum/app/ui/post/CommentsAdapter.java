@@ -149,6 +149,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                             listener.onReportReply(commentId, replyId);
                         }
                     }
+
+                    @Override
+                    public void onUserClick(String userId) {
+                        if (listener != null) {
+                            listener.onUserClick(userId);
+                        }
+                    }
                 });
                 rvReplies.setAdapter(repliesAdapter);
             } else {
@@ -347,6 +354,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                                 listener.onReportReply(cId, replyId);
                             }
                         }
+
+                        @Override
+                        public void onUserClick(String userId) {
+                            if (listener != null) {
+                                listener.onUserClick(userId);
+                            }
+                        }
                     });
                     rvNestedReplies.setAdapter(nestedAdapter);
                 } else {
@@ -415,6 +429,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             void onReplyClick(Reply reply, int position);
             void onDeleteReply(String commentId, String replyId, String nestedReplyId);
             void onReportReply(String commentId, String replyId);
+            void onUserClick(String userId);
         }
     }
 

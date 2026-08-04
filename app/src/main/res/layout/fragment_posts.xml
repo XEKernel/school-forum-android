@@ -232,6 +232,25 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <!-- 栏目导航条 -->
+                <HorizontalScrollView
+                    android:id="@+id/categoryScroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="4dp">
+
+                    <LinearLayout
+                        android:id="@+id/categoryBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp" />
+
+                </HorizontalScrollView>
+
                 <!-- 公告横幅 -->
                 <LinearLayout
                     android:id="@+id/announcementBanner"

@@ -25,6 +25,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.schoolforum.app.MainActivity;
@@ -75,6 +76,7 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostClickL
     private boolean hasMore = true;
     private String searchQuery;
     private String sortBy = "latest";
+    private String currentCategoryId; // 当前栏目过滤（null = 全部）
     private final Gson gson = new Gson();
 
     @Nullable
@@ -91,6 +93,11 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostClickL
         initViews(view);
         setupRecyclerView();
         loadAnnouncements();
+        // 栏目浏览页传入的分类
+        if (getArguments() != null) {
+            currentCategoryId = getArguments().getString("categoryId");
+        }
+        loadCategories();
         loadPosts();
     }
     
@@ -228,6 +235,120 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostClickL
         });
     }
 
+    /**
+     * 加载栏目列表并渲染横向栏目导航条
+     */
+    private void loadCategories() {
+        ApiClient.getInstance(requireContext()).get("/categories", null,
+            new ApiClient.ApiCallback<String>() {
+                @Override
+                public void onSuccess(String responseBody) {
+                    requireActivity().runOnUiThread(() -> {
+                        try {
+                            renderCategoryBar(responseBody);
+                        } catch (Exception e) {
+                            android.util.Log.e("PostsFragment", "解析栏目失败: " + e.getMessage());
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    // 栏目加载失败不阻塞帖子流
+                }
+            }, null);
+    }
+
+    /**
+     * 渲染栏目条："全部" + 各栏目，点击切换过滤
+     */
+    private void renderCategoryBar(String responseBody) {
+        android.widget.LinearLayout bar = getView() != null
+                ? getView().findViewById(R.id.categoryBar) : null;
+        if (bar == null) return;
+
+        List<CategoryChip> categories = new ArrayList<>();
+        JsonObject root = gson.fromJson(responseBody, JsonObject.class);
+        if (root != null && root.has("success") && root.get("success").getAsBoolean()
+                && root.has("categories")) {
+            com.google.gson.JsonArray arr = root.getAsJsonArray("categories");
+            for (int i = 0; i < arr.size(); i++) {
+                JsonObject c = arr.get(i).getAsJsonObject();
+                if (c.has("id") && c.has("name")) {
+                    CategoryChip chip = new CategoryChip();
+                    chip.id = c.get("id").getAsString();
+                    chip.name = c.get("name").getAsString();
+                    categories.add(chip);
+                }
+            }
+        }
+
+        bar.removeAllViews();
+
+        // "全部" 项
+        addCategoryChip(bar, "全部", null, TextUtils.isEmpty(currentCategoryId));
+        for (CategoryChip c : categories) {
+            addCategoryChip(bar, c.name, c.id, c.id != null && c.id.equals(currentCategoryId));
+        }
+    }
+
+    private static class CategoryChip {
+        String id;
+        String name;
+    }
+
+    private void addCategoryChip(android.widget.LinearLayout bar, String name, String id, boolean selected) {
+        com.google.android.material.button.MaterialButton chip = new com.google.android.material.button.MaterialButton(requireContext());
+        chip.setText(name);
+        chip.setTextSize(13);
+        chip.setMinWidth(0);
+        chip.setMinHeight(0);
+        chip.setPadding(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics()),
+                android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()),
+                android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics()),
+                android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
+        android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(0, 0, (int) android.util.TypedValue.applyDimension(
+                android.util.TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()), 0);
+        chip.setLayoutParams(lp);
+        applyChipStyle(chip, selected);
+        chip.setOnClickListener(v -> {
+            if ((id == null && TextUtils.isEmpty(currentCategoryId))
+                    || (id != null && id.equals(currentCategoryId))) {
+                return; // 已在当前栏目
+            }
+            currentCategoryId = id;
+            // 刷新栏目条选中态
+            android.widget.LinearLayout container = getView() != null
+                    ? getView().findViewById(R.id.categoryBar) : null;
+            if (container != null) {
+                for (int i = 0; i < container.getChildCount(); i++) {
+                    android.view.View child = container.getChildAt(i);
+                    if (child instanceof com.google.android.material.button.MaterialButton) {
+                        Object tag = child.getTag();
+                        boolean sel = (id == null && tag == null) || (tag != null && tag.equals(id));
+                        applyChipStyle((com.google.android.material.button.MaterialButton) child, sel);
+                    }
+                }
+            }
+            refreshPosts();
+        });
+        chip.setTag(id);
+        bar.addView(chip);
+    }
+
+    private void applyChipStyle(com.google.android.material.button.MaterialButton chip, boolean selected) {
+        if (selected) {
+            chip.setBackgroundColor(getResources().getColor(R.color.primary, null));
+            chip.setTextColor(getResources().getColor(android.R.color.white, null));
+        } else {
+            chip.setBackgroundColor(getResources().getColor(R.color.card_background, null));
+            chip.setTextColor(getResources().getColor(R.color.text_primary, null));
+        }
+    }
+
     private void loadAnnouncements() {
         ApiClient.getInstance(requireContext()).get("/announcements/active", null,
             new ApiClient.ApiCallback<String>() {
@@ -331,6 +452,10 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostClickL
             params.put("search", searchQuery);
         }
         params.put("sortBy", sortBy);
+        // 栏目过滤（null 为全部）
+        if (!TextUtils.isEmpty(currentCategoryId)) {
+            params.put("categoryId", currentCategoryId);
+        }
 
         ApiClient.getInstance(requireContext()).get("/posts", params,
             new ApiClient.ApiCallback<String>() {

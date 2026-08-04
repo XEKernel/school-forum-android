@@ -72,6 +72,10 @@ public class MainActivity extends AppCompatActivity {
     // 双击退出
     private boolean doubleBackToExitPressedOnce = false;
 
+    // 服务器连通性检查
+    private AlertDialog connectivityDialog;
+    private boolean connectivityCheckInFlight = false;
+
     // 文件上传相关（用于WebView）
     private ValueCallback<Uri[]> filePathCallback;
     private String cameraPhotoPath;
@@ -103,6 +107,9 @@ public class MainActivity extends AppCompatActivity {
         setupNotificationChannel();
         setupNavigation();
         
+        // 启动时检查服务器连通性
+        checkServerConnectivity();
+        
         // 处理Intent
         handleIntent(getIntent());
         
@@ -110,6 +117,45 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             showPostsFragment();
         }
+    }
+
+    /**
+     * 启动时检查服务器连通性（后台线程，5 秒短超时）
+     */
+    private void checkServerConnectivity() {
+        if (connectivityCheckInFlight) {
+            return;
+        }
+        connectivityCheckInFlight = true;
+        com.schoolforum.app.utils.ServerConnectivityChecker.check(BASE_URL,
+                (reachable, error) -> {
+                    connectivityCheckInFlight = false;
+                    if (isFinishing() || isDestroyed()) {
+                        return;
+                    }
+                    if (reachable) {
+                        log("服务器连通性检查通过: " + BASE_URL);
+                    } else {
+                        log("服务器连通性检查失败: " + (error != null ? error : "未知错误"));
+                        showConnectivityDialog();
+                    }
+                });
+    }
+
+    /**
+     * 显示无法连接服务器的对话框（提供重试/继续）
+     */
+    private void showConnectivityDialog() {
+        if (connectivityDialog != null && connectivityDialog.isShowing()) {
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("无法连接服务器");
+        builder.setMessage("无法连接到服务器（" + BASE_URL + "）。\n\n请检查：\n1. 服务器是否已启动\n2. 设备网络是否正常\n3. 服务器地址配置是否正确");
+        builder.setPositiveButton("重试", (dialog, which) -> checkServerConnectivity());
+        builder.setNegativeButton("继续使用", (dialog, which) -> dialog.dismiss());
+        builder.setCancelable(false);
+        connectivityDialog = builder.show();
     }
     
     @Override

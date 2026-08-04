@@ -50,6 +50,29 @@ public class LoginActivity extends AppCompatActivity {
 
         initViews();
         setupViewPager();
+
+        // 启动时检查服务器连通性（未登录用户同样需要提示）
+        checkServerConnectivity();
+    }
+
+    /**
+     * 启动时检查服务器连通性（后台线程，5 秒短超时）
+     * 失败时以 Snackbar 非阻塞提示，避免打断登录操作
+     */
+    private void checkServerConnectivity() {
+        com.schoolforum.app.utils.ServerConnectivityChecker.check(
+                com.schoolforum.app.BuildConfig.BASE_URL,
+                (reachable, error) -> {
+                    if (isFinishing() || isDestroyed() || reachable) {
+                        return;
+                    }
+                    com.google.android.material.snackbar.Snackbar.make(
+                            findViewById(android.R.id.content),
+                            "无法连接服务器，请检查网络或服务器状态",
+                            com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
+                            .setAction("重试", v -> checkServerConnectivity())
+                            .show();
+                });
     }
     
     private void log(String message) {

@@ -308,6 +308,8 @@ public class RegisterFragment extends Fragment {
                     requireActivity().runOnUiThread(() -> {
                         showLoading(false);
                         Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                        // 图形验证码一次性，失败后刷新
+                        loadCaptcha();
                     });
                 }
             }, null);
@@ -444,6 +446,8 @@ public class RegisterFragment extends Fragment {
                     requireActivity().runOnUiThread(() -> {
                         showLoading(false);
                         Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                        // 图形验证码一次性，失败后刷新
+                        loadCaptcha();
                     });
                 }
             }, null);

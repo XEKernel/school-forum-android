@@ -185,6 +185,8 @@ public class LoginFragment extends Fragment {
                     requireActivity().runOnUiThread(() -> {
                         showLoading(false);
                         Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                        // 图形验证码一次性，失败后刷新
+                        loadCaptcha();
                     });
                 }
             }, null);
@@ -310,6 +312,8 @@ public class LoginFragment extends Fragment {
                         log("Login ERROR: " + error);
                         Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
                         log("Log file path: " + FileLogger.getInstance(requireContext()).getLogFilePath());
+                        // 图形验证码一次性，失败后刷新
+                        loadCaptcha();
                     });
                 }
             }, null);

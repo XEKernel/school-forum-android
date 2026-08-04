@@ -51,7 +51,7 @@ public class RegisterFragment extends Fragment {
     private static final String TAG = "RegisterFragment";
 
     private TextInputEditText etQq, etUsername, etPassword, etConfirmPassword, etBirthday, etEmail, etCode, etCaptchaCode;
-    private AutoCompleteTextView etGender, etSchool, etYear, etClass;
+    private AutoCompleteTextView etGender, etSchool, etClass;
     private View btnSendCode, btnRegister;
     private ImageView ivCaptcha;
     private ProgressBar progressBar;
@@ -62,7 +62,6 @@ public class RegisterFragment extends Fragment {
     private String selectedBirthday;
     private String selectedSchoolId;
     private String selectedSchoolName; // 学校显示名称（school 字段应存名称而非 id）
-    private int selectedYear;
 
     // 图形验证码（服务端注册与发码均要求）
     private String captchaId;
@@ -102,7 +101,6 @@ public class RegisterFragment extends Fragment {
         etCaptchaCode = view.findViewById(R.id.etCaptchaCode);
         etGender = view.findViewById(R.id.etGender);
         etSchool = view.findViewById(R.id.etSchool);
-        etYear = view.findViewById(R.id.etYear);
         etClass = view.findViewById(R.id.etClass);
         btnSendCode = view.findViewById(R.id.btnSendCode);
         btnRegister = view.findViewById(R.id.btnRegister);
@@ -162,19 +160,6 @@ public class RegisterFragment extends Fragment {
         ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(requireContext(), 
             android.R.layout.simple_dropdown_item_1line, genders);
         etGender.setAdapter(genderAdapter);
-
-        List<String> years = new ArrayList<>();
-        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-        for (int year = currentYear; year >= currentYear - 5; year--) {
-            years.add(String.valueOf(year));
-        }
-        ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(requireContext(),
-            android.R.layout.simple_dropdown_item_1line, years);
-        etYear.setAdapter(yearAdapter);
-        etYear.setOnItemClickListener((parent, view, position, id) -> {
-            selectedYear = Integer.parseInt(years.get(position));
-            loadClasses(selectedSchoolId, selectedYear);
-        });
     }
 
     private void loadSchools() {
@@ -217,20 +202,17 @@ public class RegisterFragment extends Fragment {
         etSchool.setOnItemClickListener((parent, view, position, id) -> {
             selectedSchoolId = schoolIds.get(position);
             selectedSchoolName = schoolNames.get(position);
-            if (selectedYear > 0) {
-                loadClasses(selectedSchoolId, selectedYear);
-            }
+            // 选择学校后即可选班级（年级由服务端按入学时间计算，无需选年份）
+            loadClasses();
         });
     }
 
-    private void loadClasses(String schoolId, int year) {
-        if (schoolId == null || year == 0) return;
+    private void loadClasses() {
+        if (selectedSchoolId == null) return;
         
         List<String> classNames = new ArrayList<>();
         for (int i = 1; i <= 25; i++) {
-            classNames.add("高一(" + i + ")班");
-            classNames.add("高二(" + i + ")班");
-            classNames.add("高三(" + i + ")班");
+            classNames.add(i + "班");
         }
         
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
@@ -371,10 +353,6 @@ public class RegisterFragment extends Fragment {
             Toast.makeText(getContext(), "请选择学校", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (selectedYear == 0) {
-            Toast.makeText(getContext(), "请选择入学年份", Toast.LENGTH_SHORT).show();
-            return;
-        }
         if (TextUtils.isEmpty(className)) {
             Toast.makeText(getContext(), "请选择班级", Toast.LENGTH_SHORT).show();
             return;
@@ -390,7 +368,8 @@ public class RegisterFragment extends Fragment {
         params.put("verificationCode", code);
         // school 字段应存学校名称（id 是配置代号如 'XXXX'，存储名称才能正确展示）
         params.put("school", selectedSchoolName != null ? selectedSchoolName : (selectedSchoolId != null ? selectedSchoolId : ""));
-        params.put("enrollmentYear", String.valueOf(selectedYear));
+        // 入学年份默认当前年份，年级由服务端按入学时间自动计算
+        params.put("enrollmentYear", String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
         params.put("className", className);
         if (!TextUtils.isEmpty(selectedBirthday)) {
             params.put("birthday", selectedBirthday);

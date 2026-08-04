@@ -329,12 +329,26 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
          */
         public int measureContentHeight(int widthPx) {
             if (replies.isEmpty()) return 0;
+            // 防御：限制递归深度，防止极端数据导致栈溢出
+            if (depth >= 8) return 0;
             int totalHeight = 0;
             try {
                 for (int i = 0; i < replies.size(); i++) {
                     ReplyViewHolder holder = (ReplyViewHolder) onCreateViewHolder(
                             new android.widget.FrameLayout(itemViewContext()), 0);
                     holder.bind(replies.get(i), null, i, depth, commentId, currentUserId, postAuthorId);
+                    // 同步递归测量嵌套回复（修复第三层及以上不显示）：
+                    // bind 内 applyNestedHeight 用 post 异步设置子层高度，测量循环执行时
+                    // 子层高度仍是 0 → 深层回复超出外层固定高度被裁剪。这里在测量前
+                    // 同步递归计算子层总高并直接写入 LayoutParams。
+                    RecyclerView nestedRv = holder.getNestedRecyclerView();
+                    if (nestedRv != null && nestedRv.getAdapter() instanceof NestedRepliesAdapter) {
+                        NestedRepliesAdapter subAdapter = (NestedRepliesAdapter) nestedRv.getAdapter();
+                        int subHeight = subAdapter.measureContentHeight(widthPx);
+                        if (subHeight > 0 && nestedRv.getLayoutParams() != null) {
+                            nestedRv.getLayoutParams().height = subHeight;
+                        }
+                    }
                     holder.itemView.measure(
                             android.view.View.MeasureSpec.makeMeasureSpec(widthPx, android.view.View.MeasureSpec.AT_MOST),
                             android.view.View.MeasureSpec.makeMeasureSpec(0, android.view.View.MeasureSpec.UNSPECIFIED));
@@ -372,6 +386,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 tvReplyToUsername = itemView.findViewById(R.id.tvReplyToUsername);
                 layoutNestedReplies = itemView.findViewById(R.id.layoutNestedReplies);
                 rvNestedReplies = itemView.findViewById(R.id.rvNestedReplies);
+            }
+
+            /** 供 measureContentHeight 同步递归测量子层高度 */
+            RecyclerView getNestedRecyclerView() {
+                return rvNestedReplies;
             }
 
             void bind(Reply reply, OnReplyActionListener listener, int position, int depth,

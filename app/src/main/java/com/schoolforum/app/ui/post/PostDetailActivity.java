@@ -2,6 +2,7 @@ package com.schoolforum.app.ui.post;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -14,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -36,6 +38,8 @@ import com.schoolforum.app.utils.MarkdownUtils;
 import com.schoolforum.app.utils.TimeUtils;
 import com.schoolforum.app.utils.UserManager;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +61,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private ImageButton btnMore;
     private ImageView ivFavorite;
     private EditText etComment;
+    private ImageButton btnCommentImage;
     private ProgressBar progressBar;
     private RecyclerView rvComments, rvImages;
     private Toolbar toolbar;
@@ -71,6 +76,10 @@ public class PostDetailActivity extends AppCompatActivity {
     private Post.Comment replyingToComment = null;
     private Post.Reply replyingToReply = null;
     private boolean isFavorited = false;
+
+    // 评论/回复带图（可选，最多 1 张）
+    private static final int REQUEST_PICK_COMMENT_IMAGE = 2001;
+    private Uri selectedCommentImage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,6 +118,7 @@ public class PostDetailActivity extends AppCompatActivity {
         btnLike = findViewById(R.id.btnLike);
         btnSend = findViewById(R.id.btnSend);
         etComment = findViewById(R.id.etComment);
+        btnCommentImage = findViewById(R.id.btnCommentImage);
         progressBar = findViewById(R.id.progressBar);
         rvComments = findViewById(R.id.rvComments);
         rvImages = findViewById(R.id.rvImages);
@@ -173,6 +183,11 @@ public class PostDetailActivity extends AppCompatActivity {
 
         btnLike.setOnClickListener(v -> toggleLike());
         btnSend.setOnClickListener(v -> sendCommentOrReply());
+
+        // 评论带图：选择一张图片（再次点击可更换）
+        if (btnCommentImage != null) {
+            btnCommentImage.setOnClickListener(v -> pickCommentImage());
+        }
         
         // 收藏按钮点击
         if (btnFavorite != null) {
@@ -399,15 +414,48 @@ public class PostDetailActivity extends AppCompatActivity {
         }
         
         btnSend.setEnabled(false);
-        
+
         Map<String, String> params = new HashMap<>();
-        params.put("userId", userId);
-        params.put("username", username);
         params.put("content", content);
 
         log("Sending comment to post: " + currentPost.getId());
-        
-        ApiClient.getInstance(this).postForm("/posts/" + currentPost.getId() + "/comments", params,
+
+        // 带图走 multipart（服务端 addComment 为 upload.array('images', 5)）
+        File imageFile = selectedCommentImage != null ? prepareCommentImage(selectedCommentImage) : null;
+        if (imageFile != null) {
+            ApiClient.getInstance(this).postMultipart("/posts/" + currentPost.getId() + "/comments", params,
+                java.util.Collections.singletonList(imageFile), "images", new okhttp3.Callback() {
+                    @Override
+                    public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+                        runOnUiThread(() -> {
+                            btnSend.setEnabled(true);
+                            showError("评论失败: " + e.getMessage());
+                        });
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                        final String body = response.body() != null ? response.body().string() : "";
+                        runOnUiThread(() -> {
+                            btnSend.setEnabled(true);
+                            try {
+                                BaseResponse resp = gson.fromJson(body, BaseResponse.class);
+                                if (resp != null && Boolean.TRUE.equals(resp.success)) {
+                                    etComment.setText("");
+                                    selectedCommentImage = null;
+                                    Toast.makeText(PostDetailActivity.this, "评论成功", Toast.LENGTH_SHORT).show();
+                                    loadPostDetail();
+                                } else {
+                                    showError(resp != null && resp.message != null ? resp.message : "评论失败");
+                                }
+                            } catch (Exception e) {
+                                showError("操作失败");
+                            }
+                        });
+                    }
+                });
+        } else {
+            ApiClient.getInstance(this).postForm("/posts/" + currentPost.getId() + "/comments", params,
             new ApiClient.ApiCallback<String>() {
                 @Override
                 public void onSuccess(String responseBody) {
@@ -437,6 +485,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     });
                 }
             }, null);
+        }
     }
     
     /**
@@ -446,7 +495,7 @@ public class PostDetailActivity extends AppCompatActivity {
         if (currentPost == null) return;
         
         String content = etComment.getText() != null ? etComment.getText().toString().trim() : "";
-        if (TextUtils.isEmpty(content)) {
+        if (TextUtils.isEmpty(content) && selectedCommentImage == null) {
             Toast.makeText(this, "请输入内容", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -457,6 +506,37 @@ public class PostDetailActivity extends AppCompatActivity {
         } else {
             // 发送评论
             sendComment();
+        }
+    }
+
+    /**
+     * 选择评论图片（单张）
+     */
+    private void pickCommentImage() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "选择图片"), REQUEST_PICK_COMMENT_IMAGE);
+    }
+
+    /**
+     * 压缩评论图片为可上传文件（失败返回 null）
+     */
+    private File prepareCommentImage(Uri uri) {
+        try {
+            File file = com.schoolforum.app.utils.ImageUtils.compressImage(this, uri);
+            if (file != null) return file;
+        } catch (Exception e) {
+            log("评论图片压缩失败: " + e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PICK_COMMENT_IMAGE && resultCode == RESULT_OK && data != null) {
+            selectedCommentImage = data.getData();
+            Toast.makeText(this, "已选择图片（再次点击可更换）", Toast.LENGTH_SHORT).show();
         }
     }
     
@@ -480,8 +560,6 @@ public class PostDetailActivity extends AppCompatActivity {
         btnSend.setEnabled(false);
         
         Map<String, String> params = new HashMap<>();
-        params.put("userId", userId);
-        params.put("username", username);
         params.put("content", content);
         
         // 如果是回复的回复，设置 replyToId
@@ -492,8 +570,44 @@ public class PostDetailActivity extends AppCompatActivity {
         String url = "/posts/" + currentPost.getId() + "/comments/" + replyingToComment.getId() + "/replies";
         log("Sending reply to: " + url);
 
-        ApiClient.getInstance(this).postForm(url, params,
-            new ApiClient.ApiCallback<String>() {
+        // 带图走 multipart（服务端 replyComment 为 upload.array('images', 5)）
+        File imageFile = selectedCommentImage != null ? prepareCommentImage(selectedCommentImage) : null;
+        if (imageFile != null) {
+            ApiClient.getInstance(this).postMultipart(url, params,
+                java.util.Collections.singletonList(imageFile), "images", new okhttp3.Callback() {
+                    @Override
+                    public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+                        runOnUiThread(() -> {
+                            btnSend.setEnabled(true);
+                            showError("回复失败: " + e.getMessage());
+                        });
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                        final String body = response.body() != null ? response.body().string() : "";
+                        runOnUiThread(() -> {
+                            btnSend.setEnabled(true);
+                            try {
+                                BaseResponse resp = gson.fromJson(body, BaseResponse.class);
+                                if (resp != null && Boolean.TRUE.equals(resp.success)) {
+                                    etComment.setText("");
+                                    selectedCommentImage = null;
+                                    clearReplyState();
+                                    Toast.makeText(PostDetailActivity.this, "回复成功", Toast.LENGTH_SHORT).show();
+                                    loadPostDetail();
+                                } else {
+                                    showError(resp != null && resp.message != null ? resp.message : "回复失败");
+                                }
+                            } catch (Exception e) {
+                                showError("操作失败");
+                            }
+                        });
+                    }
+                });
+        } else {
+            ApiClient.getInstance(this).postForm(url, params,
+                new ApiClient.ApiCallback<String>() {
                 @Override
                 public void onSuccess(String responseBody) {
                     runOnUiThread(() -> {
@@ -522,6 +636,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     });
                 }
             }, null);
+        }
     }
     
     /**

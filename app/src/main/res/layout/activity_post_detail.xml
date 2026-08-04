@@ -320,6 +320,18 @@
             android:textColor="@color/text_primary"
             android:textColorHint="@color/text_hint" />
 
+        <!-- 评论/回复带图（可选，最多 1 张） -->
+        <ImageButton
+            android:id="@+id/btnCommentImage"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="@dimen/spacing_xs"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="添加图片"
+            android:src="@drawable/ic_image"
+            app:tint="@color/text_secondary"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSend"
             style="@style/Widget.App.Button.Primary"

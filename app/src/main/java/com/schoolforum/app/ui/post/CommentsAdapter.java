@@ -370,7 +370,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
                 // 点击头像跳转用户主页
                 ivAvatar.setOnClickListener(v -> {
-                    // 可以通过监听器传递用户点击事件
+                    if (listener != null && reply.getUserId() != null) {
+                        listener.onUserClick(reply.getUserId());
+                    }
                 });
             }
             

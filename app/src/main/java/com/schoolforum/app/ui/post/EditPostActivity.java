@@ -386,22 +386,67 @@ public class EditPostActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_PICK_IMAGES && resultCode == RESULT_OK && data != null) {
             ClipData clipData = data.getClipData();
+            int rejected = 0;
             if (clipData != null) {
                 for (int i = 0; i < clipData.getItemCount(); i++) {
                     Uri uri = clipData.getItemAt(i).getUri();
+                    if (!isAllowedImage(uri)) {
+                        rejected++;
+                        continue;
+                    }
                     if (imageItems.size() < MAX_IMAGES) {
                         imageItems.add(new EditImagesAdapter.EditImageItem(uri));
                     }
                 }
             } else if (data.getData() != null) {
-                if (imageItems.size() < MAX_IMAGES) {
-                    imageItems.add(new EditImagesAdapter.EditImageItem(data.getData()));
+                if (isAllowedImage(data.getData())) {
+                    if (imageItems.size() < MAX_IMAGES) {
+                        imageItems.add(new EditImagesAdapter.EditImageItem(data.getData()));
+                    }
+                } else {
+                    rejected++;
                 }
             }
             imagesAdapter.notifyDataSetChanged();
             updateAddImageButton();
             updatePublishButton();
+            if (rejected > 0) {
+                Toast.makeText(this, rejected + " 张图片格式不支持（仅支持 JPG/PNG/GIF/WebP）", Toast.LENGTH_SHORT).show();
+            }
         }
+    }
+
+    /**
+     * 图片格式白名单校验（与服务端 upload 白名单一致，提前拦截 bmp/heic/svg 等）
+     */
+    private boolean isAllowedImage(Uri uri) {
+        if (uri == null) return false;
+        String mime = null;
+        try {
+            mime = getContentResolver().getType(uri);
+        } catch (Exception ignored) {
+        }
+        if (mime != null) {
+            return mime.equals("image/jpeg") || mime.equals("image/jpg")
+                    || mime.equals("image/png") || mime.equals("image/gif")
+                    || mime.equals("image/webp");
+        }
+        // MIME 获取失败时按文件名后缀兜底
+        String name = null;
+        try (android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int idx = cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.DISPLAY_NAME);
+                if (idx >= 0) name = cursor.getString(idx);
+            }
+        } catch (Exception ignored) {
+        }
+        if (name != null) {
+            String lower = name.toLowerCase();
+            return lower.endsWith(".jpg") || lower.endsWith(".jpeg")
+                    || lower.endsWith(".png") || lower.endsWith(".gif")
+                    || lower.endsWith(".webp");
+        }
+        return false;
     }
 
     private void removeImage(int position) {

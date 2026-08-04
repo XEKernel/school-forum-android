@@ -108,6 +108,27 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostClickL
         if (posts != null && !posts.isEmpty()) {
             refreshPosts();
         }
+        // 刷新顶部用户头像（编辑资料更换头像后返回需立即生效）
+        loadUserAvatar();
+    }
+
+    /**
+     * 加载顶部用户头像（从 UserManager 当前缓存读取，可重复调用用于刷新）
+     */
+    private void loadUserAvatar() {
+        if (ivAvatar == null) return;
+        User user = UserManager.getInstance(requireContext()).getCurrentUser();
+        if (user != null && user.getAvatar() != null) {
+            String avatarUrl = user.getAvatar().startsWith("http") ? user.getAvatar()
+                    : ApiClient.getBaseUrl() + user.getAvatar();
+            com.bumptech.glide.Glide.with(this)
+                    .load(avatarUrl)
+                    .placeholder(R.mipmap.ic_launcher_round)
+                    .error(R.mipmap.ic_launcher_round)
+                    .into(ivAvatar);
+        } else {
+            ivAvatar.setImageResource(R.mipmap.ic_launcher_round);
+        }
     }
     
     private void refreshPosts() {
@@ -183,16 +204,8 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostClickL
             }
         });
 
-        User user = UserManager.getInstance(requireContext()).getCurrentUser();
-        if (user != null && user.getAvatar() != null) {
-            String avatarUrl = user.getAvatar().startsWith("http") ? user.getAvatar() 
-                    : ApiClient.getBaseUrl() + user.getAvatar();
-            com.bumptech.glide.Glide.with(this)
-                    .load(avatarUrl)
-                    .placeholder(R.mipmap.ic_launcher_round)
-                    .error(R.mipmap.ic_launcher_round)
-                    .into(ivAvatar);
-        }
+        // 加载顶部用户头像
+        loadUserAvatar();
         
         ivAvatar.setOnClickListener(v -> {
             User currentUser = UserManager.getInstance(requireContext()).getCurrentUser();

@@ -116,6 +116,12 @@ public class Post {
         @SerializedName("replies")
         private List<Reply> replies;
 
+        @SerializedName("likes")
+        private Integer likes;
+
+        @SerializedName("likedBy")
+        private List<String> likedBy;
+
         public String getId() { return id; }
         public void setId(String id) { this.id = id; }
         
@@ -139,6 +145,16 @@ public class Post {
         
         public List<Reply> getReplies() { return replies; }
         public void setReplies(List<Reply> replies) { this.replies = replies; }
+
+        public Integer getLikes() { return likes != null ? likes : 0; }
+        public void setLikes(Integer likes) { this.likes = likes; }
+
+        public List<String> getLikedBy() { return likedBy; }
+        public void setLikedBy(List<String> likedBy) { this.likedBy = likedBy; }
+
+        public boolean isLikedByUser(String userId) {
+            return userId != null && likedBy != null && likedBy.contains(userId);
+        }
     }
 
     /**
@@ -178,6 +194,12 @@ public class Post {
         @SerializedName("replies")
         private List<Reply> replies;
 
+        @SerializedName("likes")
+        private Integer likes;
+
+        @SerializedName("likedBy")
+        private List<String> likedBy;
+
         public String getId() { return id; }
         public void setId(String id) { this.id = id; }
         
@@ -210,6 +232,16 @@ public class Post {
         
         public List<Reply> getReplies() { return replies; }
         public void setReplies(List<Reply> replies) { this.replies = replies; }
+
+        public Integer getLikes() { return likes != null ? likes : 0; }
+        public void setLikes(Integer likes) { this.likes = likes; }
+
+        public List<String> getLikedBy() { return likedBy; }
+        public void setLikedBy(List<String> likedBy) { this.likedBy = likedBy; }
+
+        public boolean isLikedByUser(String userId) {
+            return userId != null && likedBy != null && likedBy.contains(userId);
+        }
     }
 
     // Getters and Setters

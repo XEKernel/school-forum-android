@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -78,6 +79,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         private final TextView tvTime;
         private final TextView tvContent;
         private final TextView btnReply;
+        private final LinearLayout btnLike;
+        private final ImageView ivLike;
+        private final TextView tvLikes;
         private final LinearLayout layoutReplies;
         private final RecyclerView rvReplies;
 
@@ -88,6 +92,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             tvTime = itemView.findViewById(R.id.tvTime);
             tvContent = itemView.findViewById(R.id.tvContent);
             btnReply = itemView.findViewById(R.id.btnReply);
+            btnLike = itemView.findViewById(R.id.btnLike);
+            ivLike = itemView.findViewById(R.id.ivLike);
+            tvLikes = itemView.findViewById(R.id.tvLikes);
             layoutReplies = itemView.findViewById(R.id.layoutReplies);
             rvReplies = itemView.findViewById(R.id.rvReplies);
         }
@@ -118,6 +125,31 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             tvTime.setText(comment.getTimestamp() != null 
                     ? TimeUtils.formatRelativeTime(comment.getTimestamp()) : "");
             tvContent.setText(comment.getContent() != null ? comment.getContent() : "");
+
+            // 设置评论点赞状态（服务端 likeComment 返回 likes/likedBy，likedBy 为空时视为未点赞）
+            boolean liked = comment.isLikedByUser(currentUserId);
+            if (tvLikes != null) {
+                int likeCount = comment.getLikes() != null ? comment.getLikes() : 0;
+                if (likeCount > 0) {
+                    tvLikes.setVisibility(View.VISIBLE);
+                    tvLikes.setText(String.valueOf(likeCount));
+                } else {
+                    tvLikes.setVisibility(View.GONE);
+                }
+            }
+            if (ivLike != null) {
+                ivLike.setImageResource(liked ? R.drawable.ic_like_filled : R.drawable.ic_like_outline);
+                ivLike.setColorFilter(liked
+                        ? itemView.getContext().getColor(R.color.primary)
+                        : itemView.getContext().getColor(R.color.text_hint));
+            }
+            if (btnLike != null) {
+                btnLike.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onCommentLike(comment, getBindingAdapterPosition());
+                    }
+                });
+            }
 
             // 设置回复列表（支持嵌套）
             List<Reply> replies = comment.getReplies();
@@ -261,6 +293,36 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         @Override
         public int getItemCount() {
             return replies.size();
+        }
+
+        /**
+         * wrap_content 嵌套 RecyclerView 高度修复：
+         * 外层 RecyclerView 无法测量内层 wrap_content RecyclerView 的高度，
+         * 导致回复列表高度为 0 不显示。此处逐项测量累加得到真实高度。
+         */
+        @Override
+        public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            if (replies.isEmpty()) {
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+                return;
+            }
+            try {
+                int totalHeight = 0;
+                int widthSize = android.view.View.MeasureSpec.getSize(widthMeasureSpec);
+                for (int i = 0; i < replies.size(); i++) {
+                    ReplyViewHolder holder = (ReplyViewHolder) onCreateViewHolder(
+                            new android.widget.FrameLayout(getContext()), 0);
+                    holder.bind(replies.get(i), null, i, depth, commentId, currentUserId, postAuthorId);
+                    holder.itemView.measure(
+                            android.view.View.MeasureSpec.makeMeasureSpec(widthSize, android.view.View.MeasureSpec.AT_MOST),
+                            android.view.View.MeasureSpec.makeMeasureSpec(0, android.view.View.MeasureSpec.UNSPECIFIED));
+                    totalHeight += holder.itemView.getMeasuredHeight();
+                }
+                setMeasuredDimension(widthSize, Math.max(1, totalHeight));
+            } catch (Exception e) {
+                // 测量失败时回退默认行为
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            }
         }
 
         static class ReplyViewHolder extends RecyclerView.ViewHolder {
@@ -443,5 +505,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         void onDeleteReply(String commentId, String replyId, String nestedReplyId);
         void onReportComment(String commentId);
         void onReportReply(String commentId, String replyId);
+        void onCommentLike(Comment comment, int position);
     }
 }

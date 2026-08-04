@@ -178,6 +178,11 @@ public class PostDetailActivity extends AppCompatActivity {
             public void onReportReply(String commentId, String replyId) {
                 showReportCommentDialog(replyId);
             }
+
+            @Override
+            public void onCommentLike(Post.Comment comment, int position) {
+                toggleCommentLike(comment, position);
+            }
         });
         rvComments.setAdapter(commentsAdapter);
 
@@ -389,6 +394,55 @@ public class PostDetailActivity extends AppCompatActivity {
                     runOnUiThread(() -> showError(error));
                 }
             }, null);
+    }
+
+    /**
+     * 评论点赞/取消点赞
+     */
+    private void toggleCommentLike(Post.Comment comment, int position) {
+        if (currentPost == null || comment == null) return;
+        String userId = UserManager.getInstance(this).getCurrentUserId();
+        if (userId == null) {
+            Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, String> params = new HashMap<>();
+        ApiClient.getInstance(this).postForm(
+                "/posts/" + currentPost.getId() + "/comments/" + comment.getId() + "/like", params,
+                new ApiClient.ApiCallback<String>() {
+                    @Override
+                    public void onSuccess(String responseBody) {
+                        runOnUiThread(() -> {
+                            try {
+                                CommentLikeResponse resp = gson.fromJson(responseBody, CommentLikeResponse.class);
+                                if (resp != null && resp.success) {
+                                    comment.setLikes(resp.likes);
+                                    if (comment.getLikedBy() == null) {
+                                        comment.setLikedBy(new ArrayList<>());
+                                    }
+                                    if (resp.liked) {
+                                        if (!comment.getLikedBy().contains(userId)) {
+                                            comment.getLikedBy().add(userId);
+                                        }
+                                    } else {
+                                        comment.getLikedBy().remove(userId);
+                                    }
+                                    commentsAdapter.notifyItemChanged(position);
+                                } else {
+                                    showError(resp != null && resp.message != null ? resp.message : "操作失败");
+                                }
+                            } catch (Exception e) {
+                                showError("操作失败");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        runOnUiThread(() -> showError(error));
+                    }
+                }, null);
     }
     
     private void sendComment() {
@@ -998,5 +1052,12 @@ public class PostDetailActivity extends AppCompatActivity {
         int dislikes;
         @SerializedName("disliked")
         boolean disliked;
+    }
+
+    private static class CommentLikeResponse extends BaseResponse {
+        @SerializedName("likes")
+        int likes;
+        @SerializedName("liked")
+        boolean liked;
     }
 }

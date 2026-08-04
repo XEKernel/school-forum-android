@@ -1,6 +1,16 @@
 # 校园论坛 Android 客户端
 
-基于 WebView 的 Android 客户端应用，封装校园论坛 Web 端。
+校园论坛的 Android 原生客户端（Java + OkHttp），与服务端配套使用。
+
+## 相关仓库
+
+| 项目 | 仓库地址 |
+|-----|---------|
+| 服务端（含 Web 端） | https://github.com/XEKernel/school-forum |
+| Android 客户端（本仓库） | https://github.com/XEKernel/school-forum-android |
+
+> 服务端基于 Node.js + Express + MongoDB + Redis，Web 端为原生 HTML/CSS/JS；
+> 本客户端通过 REST API 与服务端通信（BASE_URL 见下方配置）。
 
 ## 项目结构
 
@@ -29,20 +39,17 @@ android/
 ## 环境要求
 
 - Android Studio Hedgehog (2023.1.1) 或更高版本
-- JDK 8 或更高版本
+- JDK 21（AGP 9.1 构建必需）
 - Android SDK 34
-- Gradle 8.2
+- Gradle 9.3+（由 wrapper 管理）
 
 ## 配置服务器地址
 
-在 `MainActivity.java` 中修改 `BASE_URL`：
+在 `app/build.gradle` 的 `BuildConfig` 中修改 `BASE_URL`：
 
-```java
-// 模拟器访问本机
-private static final String BASE_URL = "http://10.0.2.2:2080";
-
-// 真机访问局域网（修改为实际IP）
-// private static final String BASE_URL = "http://192.168.x.x:2080";
+```groovy
+buildConfigField "String", "BASE_URL", "\"http://10.0.2.2:2080\""  // 模拟器访问本机
+// 真机访问局域网：改为实际 IP，如 "http://192.168.x.x:2080"
 ```
 
 ## 构建步骤
@@ -51,16 +58,14 @@ private static final String BASE_URL = "http://10.0.2.2:2080";
 
 1. 打开 Android Studio
 2. 选择 `Open an Existing Project`
-3. 选择 `android` 文件夹
-4. 等待 Gradle 同步完成
-5. 点击 `Run` 按钮运行
+3. 选择 `android` 文件夹（或本仓库根目录）
+4. **Gradle JDK 必须选择 JDK 21**（JDK 26 与 AGP 9.1 的 jlink 不兼容）
+5. 等待 Gradle 同步完成
+6. 点击 `Run` 按钮运行
 
 ### 使用命令行
 
 ```bash
-# 进入项目目录
-cd android
-
 # 构建 Debug APK
 ./gradlew assembleDebug
 
@@ -74,41 +79,13 @@ cd android
 
 ## 功能特性
 
-- WebView 容器封装
-- 下拉刷新
-- 文件上传（图片选择、拍照）
-- 文件下载
-- 消息通知
-- 震动反馈
-- 剪贴板操作
-- 分享功能
-- 原生 API 桥接
-
-## 原生 API 接口
-
-网页可以通过 `window.NativeApp` 调用原生功能：
-
-```javascript
-// 检测是否在App中
-if (window.NativeApp) {
-    console.log('运行在原生App中');
-    
-    // 显示Toast
-    NativeApp.showToast('消息');
-    
-    // 震动
-    NativeApp.vibrate(100);
-    
-    // 复制到剪贴板
-    NativeApp.copyToClipboard('文本');
-    
-    // 分享
-    NativeApp.share('标题', '内容', 'URL');
-    
-    // 获取设备信息
-    const info = NativeApp.getDeviceInfo();
-}
-```
+- 原生 Java 客户端（非 WebView 封装），OkHttp 网络层 + JWT 双 Token 认证
+- 帖子发布/浏览（Markdown + LaTeX 渲染）、分类栏目
+- 评论/嵌套回复（最多 6 层）、点赞、收藏
+- 私信会话、通知消息（含系统群发消息）
+- 用户关注/粉丝、拉黑、举报
+- 登录图形验证码、Token 自动刷新拦截器
+- 图片选择/拍照上传（压缩处理）
 
 ## 权限说明
 
@@ -122,18 +99,6 @@ if (window.NativeApp) {
 | VIBRATE | 震动反馈 |
 | POST_NOTIFICATIONS | 推送通知（Android 13+） |
 
-## 自定义图标
-
-替换 `res/mipmap-*/` 目录下的图标文件，或使用 Android Studio 的 Image Asset Studio：
-
-1. 右键点击 `res` 目录
-2. 选择 `New > Image Asset`
-3. 配置图标并生成各尺寸版本
-
-## 混淆配置
-
-Release 构建已启用 ProGuard 混淆，配置见 `app/proguard-rules.pro`。
-
 ## 版本更新
 
 修改 `app/build.gradle` 中的版本信息：
@@ -145,7 +110,6 @@ versionName "1.0.0" // 版本名（字符串）
 
 ## 注意事项
 
-1. 确保服务器已启动并可访问
+1. 确保服务端已启动并可访问（服务端启动流程见服务端仓库 README）
 2. 真机调试需要开启 USB 调试
-3. HTTPS 环境需要配置证书
-4. 生产环境建议使用 HTTPS
+3. 生产环境建议使用 HTTPS

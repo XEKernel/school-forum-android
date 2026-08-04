@@ -70,6 +70,10 @@ public class PostsAdapter extends ListAdapter<Post, PostsAdapter.PostViewHolder>
         private final View btnMore;
         private OnPostClickListener listener;
 
+        // 图片列表缓存：避免每次 bind 都重建嵌套 adapter
+        private PostImagesAdapter imagesAdapter;
+        private List<String> lastImageUrls;
+
         PostViewHolder(@NonNull View itemView) {
             super(itemView);
             ivAvatar = itemView.findViewById(R.id.ivAvatar);
@@ -142,28 +146,30 @@ public class PostsAdapter extends ListAdapter<Post, PostsAdapter.PostViewHolder>
             String plainContent = MarkdownUtils.toPlainText(post.getContent());
             tvContent.setText(plainContent);
 
-            // 设置图片
+            // 设置图片（仅在 URL 列表变化时重建嵌套 adapter）
             List<Image> postImages = post.getImages();
-            if (postImages != null && !postImages.isEmpty()) {
-                List<String> imageUrls = new ArrayList<>();
+            List<String> imageUrls = new ArrayList<>();
+            if (postImages != null) {
                 for (Image img : postImages) {
                     if (img != null && img.getUrl() != null) {
                         imageUrls.add(img.getUrl());
                     }
                 }
-                
-                if (!imageUrls.isEmpty()) {
-                    rvImages.setVisibility(View.VISIBLE);
-                    // 根据图片数量设置列数
-                    int spanCount = imageUrls.size() == 1 ? 1 : (imageUrls.size() <= 4 ? 2 : 3);
-                    rvImages.setLayoutManager(new GridLayoutManager(itemView.getContext(), spanCount));
-                    PostImagesAdapter imagesAdapter = new PostImagesAdapter(itemView.getContext(), imageUrls);
-                    rvImages.setAdapter(imagesAdapter);
-                } else {
-                    rvImages.setVisibility(View.GONE);
-                }
-            } else {
+            }
+
+            if (imageUrls.isEmpty()) {
                 rvImages.setVisibility(View.GONE);
+                lastImageUrls = null;
+            } else {
+                rvImages.setVisibility(View.VISIBLE);
+                // 根据图片数量设置列数
+                int spanCount = imageUrls.size() == 1 ? 1 : (imageUrls.size() <= 4 ? 2 : 3);
+                rvImages.setLayoutManager(new GridLayoutManager(itemView.getContext(), spanCount));
+                if (imagesAdapter == null || lastImageUrls == null || !lastImageUrls.equals(imageUrls)) {
+                    imagesAdapter = new PostImagesAdapter(itemView.getContext(), imageUrls);
+                    rvImages.setAdapter(imagesAdapter);
+                    lastImageUrls = new ArrayList<>(imageUrls);
+                }
             }
 
             // 设置统计数据

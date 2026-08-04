@@ -2,6 +2,8 @@ package com.schoolforum.app.ui.notification;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -42,6 +44,19 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     private List<Notification> notifications;
     private final Gson gson = new Gson();
 
+    // 通知轮询（新通知自动刷新）
+    private static final long POLL_INTERVAL_MS = 8000L;
+    private final Handler pollHandler = new Handler(Looper.getMainLooper());
+    private final Runnable pollRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!isFinishing() && !isDestroyed()) {
+                loadNotificationsSilently();
+                pollHandler.postDelayed(this, POLL_INTERVAL_MS);
+            }
+        }
+    };
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +65,49 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         notifications = new ArrayList<>();
         initViews();
         loadNotifications();
+        // 启动轮询（静默刷新，新通知自动出现）
+        pollHandler.postDelayed(pollRunnable, POLL_INTERVAL_MS);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 停止轮询，防止内存泄漏
+        pollHandler.removeCallbacks(pollRunnable);
+    }
+
+    /**
+     * 轮询用静默刷新（不显示进度条/下拉指示，不弹错误）
+     */
+    private void loadNotificationsSilently() {
+        String userId = UserManager.getInstance(this).getCurrentUserId();
+        if (userId == null) return;
+
+        Map<String, String> params = new HashMap<>();
+        params.put("userId", userId);
+
+        ApiClient.getInstance(this).get("/notifications", params,
+            new ApiClient.ApiCallback<String>() {
+                @Override
+                public void onSuccess(String responseBody) {
+                    runOnUiThread(() -> {
+                        try {
+                            NotificationsResponse response = gson.fromJson(responseBody, NotificationsResponse.class);
+                            if (response.success && response.notifications != null) {
+                                notifications = new ArrayList<>(response.notifications);
+                                adapter.submitList(notifications);
+                                emptyView.setVisibility(notifications.isEmpty() ? View.VISIBLE : View.GONE);
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    // 轮询失败静默
+                }
+            }, null);
     }
 
     private void initViews() {

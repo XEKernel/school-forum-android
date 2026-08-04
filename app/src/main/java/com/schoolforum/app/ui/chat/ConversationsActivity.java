@@ -1,6 +1,8 @@
 package com.schoolforum.app.ui.chat;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,6 +41,19 @@ public class ConversationsActivity extends AppCompatActivity implements Conversa
     private List<Conversation> conversations;
     private final Gson gson = new Gson();
 
+    // 会话列表轮询（新消息自动刷新）
+    private static final long POLL_INTERVAL_MS = 8000L;
+    private final Handler pollHandler = new Handler(Looper.getMainLooper());
+    private final Runnable pollRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!isFinishing() && !isDestroyed()) {
+                loadConversationsSilently();
+                pollHandler.postDelayed(this, POLL_INTERVAL_MS);
+            }
+        }
+    };
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +62,49 @@ public class ConversationsActivity extends AppCompatActivity implements Conversa
         conversations = new ArrayList<>();
         initViews();
         loadConversations();
+        // 启动轮询（静默刷新，不打扰用户）
+        pollHandler.postDelayed(pollRunnable, POLL_INTERVAL_MS);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 停止轮询，防止内存泄漏
+        pollHandler.removeCallbacks(pollRunnable);
+    }
+
+    /**
+     * 轮询用静默刷新（不显示进度条/下拉指示，不弹错误）
+     */
+    private void loadConversationsSilently() {
+        String userId = UserManager.getInstance(this).getCurrentUserId();
+        if (userId == null) return;
+
+        Map<String, String> params = new HashMap<>();
+        params.put("userId", userId);
+
+        ApiClient.getInstance(this).get("/conversations", params,
+            new ApiClient.ApiCallback<String>() {
+                @Override
+                public void onSuccess(String responseBody) {
+                    runOnUiThread(() -> {
+                        try {
+                            ConversationsResponse response = gson.fromJson(responseBody, ConversationsResponse.class);
+                            if (response.success && response.conversations != null) {
+                                conversations = new ArrayList<>(response.conversations);
+                                adapter.submitList(conversations);
+                                emptyView.setVisibility(conversations.isEmpty() ? View.VISIBLE : View.GONE);
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    // 轮询失败静默
+                }
+            }, null);
     }
 
     private void initViews() {

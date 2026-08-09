@@ -106,7 +106,8 @@ public class MarkdownUtils {
         // 1. \tag 降级
         String s = markdown.replaceAll("\\\\tag\\*?\\{([^}]*)\\}", "\\\\quad(\\\\text{$1})");
         // 2. 行内单美元 → 双美元
-        s = s.replaceAll("(?<!\\$)(?<!\\\\)\\$(?!\\$)([^$\\n]+?)\\$(?!\\$)", "$$$$$1$$$$");
+        // replacement 里字面 $ 必须用 \$ 转义（Java 规则），$$ 会抛 Illegal group reference
+        s = s.replaceAll("(?<!\\$)(?<!\\\\)\\$(?!\\$)([^$\\n]+?)\\$(?!\\$)", "\\$\\$$1\\$\\$");
         return s;
     }
 

@@ -13,7 +13,7 @@
     <!-- 次要色 - Secondary -->
     <color name="md3_secondary">#C2C6DC</color>
     <color name="md3_onSecondary">#2B3142</color>
-    <color name="md3_secondaryContainer">#414759</color>
+    <color name="md3_secondaryContainer">#263244</color>
     <color name="md3_onSecondaryContainer">#DEE1F6</color>
     
     <!-- 第三色 - Tertiary -->
@@ -23,8 +23,8 @@
     <color name="md3_onTertiaryContainer">#D3E4F9</color>
     
     <!-- 错误色 - Error -->
-    <color name="md3_error">#FFB4AB</color>
-    <color name="md3_onError">#690005</color>
+    <color name="md3_error">#FF6B6B</color>
+    <color name="md3_onError">#FFFFFF</color>
     <color name="md3_errorContainer">#93000A</color>
     <color name="md3_onErrorContainer">#FFDAD6</color>
     
@@ -35,12 +35,12 @@
     <!-- 表面色 - Surface -->
     <color name="md3_surface">#0F172A</color>
     <color name="md3_onSurface">#E2E8F0</color>
-    <color name="md3_surfaceVariant">#45464F</color>
+    <color name="md3_surfaceVariant">#2A3648</color>
     <color name="md3_onSurfaceVariant">#C5C6D0</color>
     
     <!-- 轮廓色 - Outline -->
     <color name="md3_outline">#8F909A</color>
-    <color name="md3_outlineVariant">#45464F</color>
+    <color name="md3_outlineVariant">#334155</color>
     
     <!-- 反转表面色 - Inverse Surface -->
     <color name="md3_inverseSurface">#E3E2E6</color>
@@ -63,7 +63,7 @@
     
     <!-- 背景色 -->
     <color name="background">@color/md3_background</color>
-    <color name="background_dark">#121212</color>
+    <color name="background_dark">#0F172A</color>
     <color name="surface">@color/md3_surface</color>
     <color name="card_background">#1E293B</color>
     
@@ -74,8 +74,8 @@
     
     <!-- 文字颜色 -->
     <color name="text_primary">@color/md3_onBackground</color>
-    <color name="text_secondary">#9CA3AF</color>
-    <color name="text_hint">#6B7280</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="text_hint">#64748B</color>
     <color name="text_link">@color/md3_primary</color>
     <color name="text_white">#FFFFFF</color>
     
@@ -91,13 +91,13 @@
     
     <!-- 聊天气泡 -->
     <color name="chat_bubble_self">@color/md3_primaryContainer</color>
-    <color name="chat_bubble_other">#263244</color>
+    <color name="chat_bubble_other">#2A3648</color>
     <color name="chat_bubble_self_text">@color/md3_onPrimaryContainer</color>
     <color name="chat_bubble_other_text">@color/text_primary</color>
     
     <!-- 分割线 -->
     <color name="divider">@color/md3_outlineVariant</color>
-    <color name="divider_light">#263244</color>
+    <color name="divider_light">#334155</color>
     
     <!-- 水波纹效果 -->
     <color name="ripple">#1FFFFFFF</color>
@@ -146,7 +146,7 @@
     
     <!-- LaTeX 公式颜色 -->
     <color name="latex_text">#E3E2E6</color>
-    <color name="latex_background">#25262D</color>
+    <color name="latex_background">#1E293B</color>
     
     <!-- 评分星星 -->
     <color name="star_filled">#FBBF24</color>

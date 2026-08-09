@@ -13,6 +13,7 @@ import java.util.WeakHashMap;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.latex.JLatexMathPlugin;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
+import io.noties.markwon.ext.tables.TableAwareMovementMethod;
 import io.noties.markwon.ext.tables.TablePlugin;
 import io.noties.markwon.ext.tasklist.TaskListPlugin;
 import io.noties.markwon.html.HtmlPlugin;
@@ -85,6 +86,8 @@ public class MarkdownUtils {
         }
         try {
             getMarkwon(context).setMarkdown(textView, preprocessLatex(markdown));
+            // 链接可点击（TableAwareMovementMethod 同时保留表格横向滚动能力）
+            textView.setMovementMethod(TableAwareMovementMethod.create());
         } catch (Exception e) {
             // 如果渲染失败，直接显示原文
             textView.setText(markdown);

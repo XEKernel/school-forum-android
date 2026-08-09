@@ -88,6 +88,10 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         tvSkip = findViewById(R.id.tvSkip);
 
+        // 忘记密码入口
+        findViewById(R.id.tvForgotPassword).setOnClickListener(v ->
+                startActivity(new android.content.Intent(this, ForgotPasswordActivity.class)));
+
         tvSkip.setOnClickListener(v -> {
             navigateToMain();
         });

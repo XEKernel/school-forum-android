@@ -5,10 +5,10 @@
          ======================================== -->
     
     <!-- 主色调 - Primary (深蓝色，与网页版一致) -->
-    <color name="md3_primary">#4361EE</color>
+    <color name="md3_primary">#2B6CB0</color>
     <color name="md3_onPrimary">#FFFFFF</color>
-    <color name="md3_primaryContainer">#B8C4FF</color>
-    <color name="md3_onPrimaryContainer">#001B3F</color>
+    <color name="md3_primaryContainer">#D3E4F9</color>
+    <color name="md3_onPrimaryContainer">#06284D</color>
     
     <!-- 次要色 - Secondary -->
     <color name="md3_secondary">#455A64</color>
@@ -17,10 +17,10 @@
     <color name="md3_onSecondaryContainer">#1C313A</color>
     
     <!-- 第三色 - Tertiary -->
-    <color name="md3_tertiary">#3F37C9</color>
+    <color name="md3_tertiary">#3A6EA5</color>
     <color name="md3_onTertiary">#FFFFFF</color>
-    <color name="md3_tertiaryContainer">#DEE1FF</color>
-    <color name="md3_onTertiaryContainer">#111A66</color>
+    <color name="md3_tertiaryContainer">#D6E4F4</color>
+    <color name="md3_onTertiaryContainer">#0A2A4A</color>
     
     <!-- 错误色 - Error -->
     <color name="md3_error">#BA1A1A</color>
@@ -45,7 +45,7 @@
     <!-- 反转表面色 - Inverse Surface -->
     <color name="md3_inverseSurface">#2F3036</color>
     <color name="md3_inverseOnSurface">#F1F0F4</color>
-    <color name="md3_inversePrimary">#B8C4FF</color>
+    <color name="md3_inversePrimary">#8FB8DC</color>
     
     <!-- ========================================
          应用自定义颜色（继承自 MD3）
@@ -53,9 +53,9 @@
     
     <!-- 主题色 -->
     <color name="primary">@color/md3_primary</color>
-    <color name="primary_dark">#1976D2</color>
-    <color name="primary_light">#64B5F6</color>
-    <color name="accent">#1976D2</color>
+    <color name="primary_dark">#245A94</color>
+    <color name="primary_light">#EBF4FC</color>
+    <color name="accent">#2B6CB0</color>
     
     <!-- 基础色 -->
     <color name="white">#FFFFFF</color>
@@ -68,9 +68,9 @@
     <color name="card_background">@color/md3_surface</color>
     
     <!-- 登录页面 -->
-    <color name="login_background">#EEF0FE</color>
-    <color name="login_gradient_start">#4361EE</color>
-    <color name="login_gradient_end">#3F37C9</color>
+    <color name="login_background">#F6F7F8</color>
+    <color name="login_gradient_start">#2B6CB0</color>
+    <color name="login_gradient_end">#1E4E79</color>
     
     <!-- 文字颜色 -->
     <color name="text_primary">@color/md3_onBackground</color>
@@ -127,12 +127,12 @@
     <color name="bottom_nav_indicator">@color/md3_primary</color>
     
     <!-- 按钮渐变 -->
-    <color name="btn_gradient_start">#4361EE</color>
-    <color name="btn_gradient_end">#3F37C9</color>
+    <color name="btn_gradient_start">#2B6CB0</color>
+    <color name="btn_gradient_end">#1E4E79</color>
     
     <!-- 头像渐变 -->
-    <color name="avatar_gradient_start">#4361EE</color>
-    <color name="avatar_gradient_end">#3F37C9</color>
+    <color name="avatar_gradient_start">#2B6CB0</color>
+    <color name="avatar_gradient_end">#1E4E79</color>
     
     <!-- 代码高亮颜色 -->
     <color name="code_background">#F6F8FA</color>

@@ -62,7 +62,7 @@ public class MarkdownUtils {
     }
 
     /**
-     * 渲染 Markdown 到 WebView（支持表格 / 代码高亮 / LaTeX 公式）
+     * 渲染 Markdown 到 WebView（支持表格 / 代码高亮 / LaTeX 公式，背景跟随 App 主题）
      * 加载 assets/markdown/render.html，通过 JS 注入内容渲染，
      * baseUrl 使用服务端地址以便帖子内相对图片路径（/images/...）正常加载
      *
@@ -79,14 +79,24 @@ public class MarkdownUtils {
                 renderTemplate = template;
             }
             webView.loadDataWithBaseURL(baseUrl, template, "text/html", "utf-8", null);
-            // 等待页面加载后注入内容并渲染
+            // 等待页面加载后注入主题与内容并渲染
             final String md = markdown == null ? "" : markdown;
+            final String theme = isDarkMode(webView.getContext()) ? "dark" : "light";
             webView.postDelayed(() -> webView.loadUrl(
-                    "javascript:renderMarkdown(" + jsonEscape(md) + ")"), 150);
+                    "javascript:setTheme('" + theme + "');renderMarkdown(" + jsonEscape(md) + ")"), 150);
         } catch (Exception e) {
             // WebView 渲染失败时回退：不显示内容（保持空白即可，避免崩溃）
             webView.postDelayed(() -> webView.loadUrl("javascript:document.body.innerHTML=''"), 100);
         }
+    }
+
+    /**
+     * 判断当前是否深色模式（AppCompatDelegate 应用后的实际配置）
+     */
+    private static boolean isDarkMode(Context context) {
+        int nightMode = context.getResources().getConfiguration().uiMode
+                & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+        return nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES;
     }
 
     /**

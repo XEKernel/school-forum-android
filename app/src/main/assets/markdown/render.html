@@ -5,37 +5,82 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="file:///android_asset/markdown/github-dark.min.css">
 <style>
+  /* 颜色变量：浅色默认，data-theme="dark" 切深色（跟随 App 主题） */
+  :root {
+    --bg: #ffffff;
+    --text: #1f2328;
+    --heading: #1f2328;
+    --border: #d0d7de;
+    --border-soft: #e4e6e8;
+    --link: #2b6cb0;
+    --quote-bg: #f6f8fa;
+    --quote-text: #57606a;
+    --code-bg: #f0f2f4;
+    --code-text: #1f2328;
+    --pre-bg: #0d1117;
+    --pre-text: #e6edf3;
+    --th-bg: #f0f1f2;
+    --striped: #fafbfc;
+    --scrollbar: #c9cdd3;
+  }
+  [data-theme="dark"] {
+    --bg: #0f172a;
+    --text: #e2e8f0;
+    --heading: #e2e8f0;
+    --border: #334155;
+    --border-soft: #2a3648;
+    --link: #5a9bdd;
+    --quote-bg: #1e293b;
+    --quote-text: #94a3b8;
+    --code-bg: #1e293b;
+    --code-text: #e2e8f0;
+    --pre-bg: #0d1117;
+    --pre-text: #e6edf3;
+    --th-bg: #1e293b;
+    --striped: #182438;
+    --scrollbar: #334155;
+  }
   body {
     margin: 0;
     padding: 4px 0;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.7;
-    color: #1f2328;
-    background: #ffffff;
+    color: var(--text);
+    background: var(--bg);
     word-break: break-word;
+    overflow-wrap: break-word;
     font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   }
-  h1, h2, h3, h4, h5, h6 { margin: 1em 0 0.5em; line-height: 1.4; color: #1f2328; }
-  h1 { font-size: 1.5em; border-bottom: 1px solid #e4e6e8; padding-bottom: 0.3em; }
-  h2 { font-size: 1.3em; border-bottom: 1px solid #e4e6e8; padding-bottom: 0.3em; }
-  h3 { font-size: 1.15em; }
-  p { margin: 0.6em 0; }
-  a { color: #2b6cb0; text-decoration: none; }
+  h1, h2, h3, h4, h5, h6 { margin: 0.9em 0 0.45em; line-height: 1.4; color: var(--heading); }
+  h1 { font-size: 1.4em; border-bottom: 1px solid var(--border-soft); padding-bottom: 0.3em; }
+  h2 { font-size: 1.25em; border-bottom: 1px solid var(--border-soft); padding-bottom: 0.3em; }
+  h3 { font-size: 1.12em; }
+  h4 { font-size: 1.05em; }
+  p { margin: 0.55em 0; }
+  a { color: var(--link); text-decoration: none; }
   img { max-width: 100%; height: auto; border-radius: 0; }
-  code { background: #f0f2f4; padding: 2px 5px; border-radius: 0; font-family: Consolas, Monaco, monospace; font-size: 0.9em; color: #1f2328; }
-  pre { background: #0d1117; color: #e6edf3; padding: 12px; border-radius: 0; overflow-x: auto; margin: 0.8em 0; border: 1px solid #e4e6e8; }
-  pre code { background: none; padding: 0; color: inherit; font-size: 0.88em; }
-  blockquote { border-left: 4px solid #2b6cb0; margin: 0.8em 0; padding: 0.2em 0 0.2em 12px; color: #57606a; background: #f6f8fa; }
-  table { border-collapse: collapse; margin: 0.8em 0; width: 100%; font-size: 0.95em; display: block; overflow-x: auto; }
-  th, td { border: 1px solid #d0d7de; padding: 6px 10px; text-align: left; }
-  th { background: #f0f1f2; font-weight: 600; }
-  tr:nth-child(even) td { background: #fafbfc; }
-  ul, ol { margin: 0.6em 0; padding-left: 1.6em; }
-  li { margin: 0.3em 0; }
-  hr { border: none; border-top: 1px solid #e4e6e8; margin: 1.2em 0; }
-  del { color: #8c959f; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 0; font-family: Consolas, Monaco, monospace; font-size: 0.88em; color: var(--code-text); }
+  pre {
+    background: var(--pre-bg); color: var(--pre-text); padding: 10px 12px;
+    border-radius: 0; overflow-x: auto; margin: 0.7em 0; border: 1px solid var(--border-soft);
+    -webkit-overflow-scrolling: touch;
+  }
+  pre code { background: none; padding: 0; color: inherit; font-size: 0.85em; white-space: pre; }
+  blockquote { border-left: 4px solid var(--link); margin: 0.7em 0; padding: 0.2em 0 0.2em 12px; color: var(--quote-text); background: var(--quote-bg); }
+  table { border-collapse: collapse; margin: 0.7em 0; width: 100%; font-size: 0.92em; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  th, td { border: 1px solid var(--border); padding: 5px 9px; text-align: left; white-space: nowrap; }
+  th { background: var(--th-bg); font-weight: 600; }
+  tr:nth-child(even) td { background: var(--striped); }
+  ul, ol { margin: 0.55em 0; padding-left: 1.5em; }
+  li { margin: 0.25em 0; }
+  hr { border: none; border-top: 1px solid var(--border-soft); margin: 1em 0; }
+  del { color: var(--quote-text); }
+  /* 横向滚动条（表格/代码块超宽时可滚动查看） */
+  ::-webkit-scrollbar { height: 6px; width: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 0; }
+  ::-webkit-scrollbar-track { background: transparent; }
   .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
-  .katex { font-size: 1.05em; }
+  .katex { font-size: 1.02em; }
 </style>
 </head>
 <body>
@@ -62,6 +107,9 @@
     if (window.MathJax && MathJax.typesetPromise) {
       try { MathJax.typesetPromise(); } catch (e) {}
     }
+  }
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
   }
 </script>
 <script src="file:///android_asset/markdown/mathjax-config.js"></script>

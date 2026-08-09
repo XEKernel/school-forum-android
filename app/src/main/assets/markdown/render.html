@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="file:///android_asset/markdown/github-dark.min.css">
+<style>
+  body {
+    margin: 0;
+    padding: 4px 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #1f2328;
+    background: #ffffff;
+    word-break: break-word;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 { margin: 1em 0 0.5em; line-height: 1.4; color: #1f2328; }
+  h1 { font-size: 1.5em; border-bottom: 1px solid #e4e6e8; padding-bottom: 0.3em; }
+  h2 { font-size: 1.3em; border-bottom: 1px solid #e4e6e8; padding-bottom: 0.3em; }
+  h3 { font-size: 1.15em; }
+  p { margin: 0.6em 0; }
+  a { color: #2b6cb0; text-decoration: none; }
+  img { max-width: 100%; height: auto; border-radius: 0; }
+  code { background: #f0f2f4; padding: 2px 5px; border-radius: 0; font-family: Consolas, Monaco, monospace; font-size: 0.9em; color: #1f2328; }
+  pre { background: #0d1117; color: #e6edf3; padding: 12px; border-radius: 0; overflow-x: auto; margin: 0.8em 0; border: 1px solid #e4e6e8; }
+  pre code { background: none; padding: 0; color: inherit; font-size: 0.88em; }
+  blockquote { border-left: 4px solid #2b6cb0; margin: 0.8em 0; padding: 0.2em 0 0.2em 12px; color: #57606a; background: #f6f8fa; }
+  table { border-collapse: collapse; margin: 0.8em 0; width: 100%; font-size: 0.95em; display: block; overflow-x: auto; }
+  th, td { border: 1px solid #d0d7de; padding: 6px 10px; text-align: left; }
+  th { background: #f0f1f2; font-weight: 600; }
+  tr:nth-child(even) td { background: #fafbfc; }
+  ul, ol { margin: 0.6em 0; padding-left: 1.6em; }
+  li { margin: 0.3em 0; }
+  hr { border: none; border-top: 1px solid #e4e6e8; margin: 1.2em 0; }
+  del { color: #8c959f; }
+  .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+  .katex { font-size: 1.05em; }
+</style>
+</head>
+<body>
+<script src="file:///android_asset/markdown/markdown-it.min.js"></script>
+<script src="file:///android_asset/markdown/highlight.min.js"></script>
+<script>
+  function renderMarkdown(markdown) {
+    var mdIt = window.markdownit({
+      html: false,
+      linkify: true,
+      typographer: true,
+      highlight: function (str, lang) {
+        if (window.hljs) {
+          if (lang && hljs.getLanguage(lang)) {
+            try { return hljs.highlight(str, { language: lang }).value; } catch (e) {}
+          }
+          try { return hljs.highlightAuto(str).value; } catch (e) {}
+        }
+        return '';
+      }
+    });
+    document.body.innerHTML = mdIt.render(markdown || '');
+    // LaTeX 公式渲染（MathJax 异步加载完成后执行）
+    if (window.MathJax && MathJax.typesetPromise) {
+      try { MathJax.typesetPromise(); } catch (e) {}
+    }
+  }
+</script>
+<script src="file:///android_asset/markdown/mathjax-config.js"></script>
+<script src="file:///android_asset/markdown/tex-svg-full.js"></script>
+</body>
+</html>

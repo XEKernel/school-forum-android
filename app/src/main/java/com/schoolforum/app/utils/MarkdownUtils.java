@@ -1,8 +1,13 @@
 package com.schoolforum.app.utils;
 
 import android.content.Context;
+import android.webkit.WebView;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.WeakHashMap;
 
 import io.noties.markwon.Markwon;
@@ -10,12 +15,15 @@ import io.noties.markwon.image.glide.GlideImagesPlugin;
 
 /**
  * Markdown渲染工具类
- * 使用 Markwon 库渲染 Markdown
- * 使用 WeakHashMap 缓存 Markwon 实例，避免内存泄漏
+ * - render()：Markwon 渲染到 TextView（列表摘要等简单场景）
+ * - renderWebView()：WebView 渲染（帖子详情，支持表格/代码高亮/LaTeX 公式）
  */
 public class MarkdownUtils {
     // 使用 WeakHashMap 缓存 Markwon 实例，Context 被销毁时自动释放
     private static final WeakHashMap<Context, Markwon> markwonCache = new WeakHashMap<>();
+
+    /** WebView 渲染模板（assets/markdown/render.html），缓存避免重复 IO */
+    private static volatile String renderTemplate = null;
 
     /**
      * 获取Markwon实例（基于 Context 缓存）
@@ -51,6 +59,77 @@ public class MarkdownUtils {
             // 如果渲染失败，直接显示原文
             textView.setText(markdown);
         }
+    }
+
+    /**
+     * 渲染 Markdown 到 WebView（支持表格 / 代码高亮 / LaTeX 公式）
+     * 加载 assets/markdown/render.html，通过 JS 注入内容渲染，
+     * baseUrl 使用服务端地址以便帖子内相对图片路径（/images/...）正常加载
+     *
+     * @param webView  已配置的 WebView（调用方需启用 JavaScript）
+     * @param baseUrl  服务端基础地址（如 http://192.168.x.x:2080/），用于解析相对图片
+     * @param markdown Markdown 内容
+     */
+    public static void renderWebView(WebView webView, String baseUrl, String markdown) {
+        if (webView == null) return;
+        try {
+            String template = renderTemplate;
+            if (template == null) {
+                template = loadAsset(webView.getContext(), "markdown/render.html");
+                renderTemplate = template;
+            }
+            webView.loadDataWithBaseURL(baseUrl, template, "text/html", "utf-8", null);
+            // 等待页面加载后注入内容并渲染
+            final String md = markdown == null ? "" : markdown;
+            webView.postDelayed(() -> webView.loadUrl(
+                    "javascript:renderMarkdown(" + jsonEscape(md) + ")"), 150);
+        } catch (Exception e) {
+            // WebView 渲染失败时回退：不显示内容（保持空白即可，避免崩溃）
+            webView.postDelayed(() -> webView.loadUrl("javascript:document.body.innerHTML=''"), 100);
+        }
+    }
+
+    /**
+     * 读取 assets 文件内容
+     */
+    private static String loadAsset(Context context, String path) throws java.io.IOException {
+        StringBuilder sb = new StringBuilder();
+        try (InputStream is = context.getAssets().open(path);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * JS 字符串转义（防注入）
+     */
+    private static String jsonEscape(String s) {
+        StringBuilder sb = new StringBuilder(s.length() + 16);
+        sb.append('"');
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '"': sb.append("\\\""); break;
+                case '\\': sb.append("\\\\"); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\t': sb.append("\\t"); break;
+                case '\b': sb.append("\\b"); break;
+                case '\f': sb.append("\\f"); break;
+                default:
+                    if (c < 0x20) {
+                        sb.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+            }
+        }
+        sb.append('"');
+        return sb.toString();
     }
 
     /**

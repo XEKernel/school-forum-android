@@ -105,16 +105,13 @@
 
                     </LinearLayout>
 
-                    <!-- 内容 -->
-                    <TextView
+                    <!-- 内容（WebView 渲染：支持表格/代码高亮/LaTeX） -->
+                    <WebView
                         android:id="@+id/tvContent"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_xl"
-                        android:textColor="@color/text_primary"
-                        android:textSize="@dimen/text_md"
-                        android:lineSpacingMultiplier="1.3"
-                        tools:text="今天学校组织了篮球比赛..." />
+                        android:background="@android:color/transparent" />
 
                     <!-- 图片 -->
                     <androidx.recyclerview.widget.RecyclerView

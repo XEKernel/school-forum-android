@@ -14,7 +14,7 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.webkit.WebView;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,8 +57,7 @@ public class PostDetailActivity extends AppCompatActivity {
     public static final String EXTRA_POST_ID = "post_id";
 
     private CircleImageView ivAvatar;
-    private TextView tvUsername, tvMeta, tvLikes, tvComments, tvViews;
-    private WebView webContent;
+    private TextView tvUsername, tvMeta, tvContent, tvLikes, tvComments, tvViews;
     private View btnLike, btnSend, btnFavorite;
     private ImageButton btnMore;
     private ImageView ivFavorite;
@@ -113,13 +112,8 @@ public class PostDetailActivity extends AppCompatActivity {
         ivAvatar = findViewById(R.id.ivAvatar);
         tvUsername = findViewById(R.id.tvUsername);
         tvMeta = findViewById(R.id.tvMeta);
-        // 内容区为 WebView（支持表格/代码高亮/LaTeX）
-        webContent = findViewById(R.id.tvContent);
-        webContent.getSettings().setJavaScriptEnabled(true);
-        webContent.getSettings().setDomStorageEnabled(true);
-        webContent.getSettings().setLoadWithOverviewMode(true);
-        webContent.getSettings().setUseWideViewPort(true);
-        webContent.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+        // 内容区为 TextView + Markwon 原生渲染（表格/代码高亮/LaTeX，无 WebView）
+        tvContent = findViewById(R.id.tvContent);
         tvLikes = findViewById(R.id.tvLikes);
         tvComments = findViewById(R.id.tvComments);
         tvViews = findViewById(R.id.tvViews);
@@ -328,9 +322,8 @@ public class PostDetailActivity extends AppCompatActivity {
         }
         tvMeta.setText(meta);
 
-        // WebView 渲染内容（支持表格/代码高亮/LaTeX），baseUrl 用服务端地址解析相对图片
-        String baseUrl = com.schoolforum.app.network.ApiClient.getBaseUrl();
-        MarkdownUtils.renderWebView(webContent, baseUrl, post.getContent());
+        // Markwon 原生渲染内容（表格/代码高亮/LaTeX 公式）
+        MarkdownUtils.render(this, tvContent, post.getContent());
 
         tvLikes.setText(String.valueOf(post.getLikes() != null ? post.getLikes() : 0));
         tvComments.setText(String.valueOf(post.getComments() != null ? post.getComments().size() : 0));

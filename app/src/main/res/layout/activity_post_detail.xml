@@ -105,13 +105,17 @@
 
                     </LinearLayout>
 
-                    <!-- 内容（WebView 渲染：支持表格/代码高亮/LaTeX） -->
-                    <WebView
+                    <!-- 内容（Markwon 原生渲染：表格/代码高亮/LaTeX 公式） -->
+                    <TextView
                         android:id="@+id/tvContent"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_xl"
-                        android:background="@android:color/transparent" />
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/text_md"
+                        android:lineSpacingMultiplier="1.3"
+                        android:textIsSelectable="true" />
 
                     <!-- 图片 -->
                     <androidx.recyclerview.widget.RecyclerView

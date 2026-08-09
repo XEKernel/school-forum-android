@@ -92,8 +92,13 @@ dependencies {
     implementation 'io.noties.markwon:image-glide:4.6.2'
     implementation 'io.noties.markwon:linkify:4.6.2'
     implementation 'io.noties.markwon:ext-latex:4.6.2'
-    // 简单代码块样式（不使用 prism4j）
+    implementation 'io.noties.markwon:ext-tables:4.6.2'
+    implementation 'io.noties.markwon:inline-parser:4.6.2'
+    implementation 'io.noties.markwon:syntax-highlight:4.6.2'
     implementation 'io.noties.markwon:html:4.6.2'
+    // Prism4j 原生代码高亮（语言定义见 io/noties/prism4j/languages，注册见 ForumPrismBundle）
+    implementation 'io.noties:prism4j:2.0.0'
+    annotationProcessor 'io.noties:prism4j-bundler:2.0.0'
     
     // 图片缩放查看
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'

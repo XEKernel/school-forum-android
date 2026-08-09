@@ -11,22 +11,37 @@ import java.nio.charset.StandardCharsets;
 import java.util.WeakHashMap;
 
 import io.noties.markwon.Markwon;
+import io.noties.markwon.ext.latex.JLatexMathPlugin;
+import io.noties.markwon.ext.tables.TablePlugin;
 import io.noties.markwon.image.glide.GlideImagesPlugin;
+import io.noties.markwon.inlineparser.MarkwonInlineParserPlugin;
+import io.noties.markwon.syntax.Prism4jTheme;
+import io.noties.markwon.syntax.Prism4jThemeDarkula;
+import io.noties.markwon.syntax.SyntaxHighlightPlugin;
+import io.noties.prism4j.Prism4j;
+import io.noties.prism4j.bundler.Prism4jBundler;
 
 /**
  * Markdown渲染工具类
- * - render()：Markwon 渲染到 TextView（列表摘要等简单场景）
- * - renderWebView()：WebView 渲染（帖子详情，支持表格/代码高亮/LaTeX 公式）
+ * - render()：Markwon 原生渲染到 TextView（表格/代码高亮/LaTeX 公式，无 WebView）
+ * - renderWebView()：WebView 渲染（保留作回退，默认不再使用）
  */
 public class MarkdownUtils {
     // 使用 WeakHashMap 缓存 Markwon 实例，Context 被销毁时自动释放
     private static final WeakHashMap<Context, Markwon> markwonCache = new WeakHashMap<>();
+
+    /** Prism4j 实例（语言由 prism4j-bundler 编译期生成，注册见 ForumPrismBundle） */
+    private static final Prism4j PRISM4J = new Prism4j(new Prism4jBundler());
+
+    /** 代码块高亮主题（深色，与网页 github-dark 风格一致） */
+    private static final Prism4jTheme PRISM_THEME = Prism4jThemeDarkula.create();
 
     /** WebView 渲染模板（assets/markdown/render.html），缓存避免重复 IO */
     private static volatile String renderTemplate = null;
 
     /**
      * 获取Markwon实例（基于 Context 缓存）
+     * 原生渲染插件：表格 + 代码高亮 + LaTeX 公式
      */
     public static Markwon getMarkwon(Context context) {
         // 使用 ApplicationContext 避免Activity泄漏
@@ -34,7 +49,13 @@ public class MarkdownUtils {
         Markwon markwon = markwonCache.get(appContext);
         if (markwon == null) {
             try {
+                // 公式字号跟随系统密度（14sp 基准）
+                final float textSize = 14f * appContext.getResources().getDisplayMetrics().scaledDensity;
                 markwon = Markwon.builder(appContext)
+                        .usePlugin(MarkwonInlineParserPlugin.create())
+                        .usePlugin(TablePlugin.create())
+                        .usePlugin(SyntaxHighlightPlugin.create(PRISM4J, PRISM_THEME))
+                        .usePlugin(JLatexMathPlugin.create(textSize, builder -> builder.inlinesEnabled(true)))
                         .usePlugin(GlideImagesPlugin.create(appContext))
                         .build();
             } catch (Exception e) {

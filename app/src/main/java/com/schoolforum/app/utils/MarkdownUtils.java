@@ -95,12 +95,19 @@ public class MarkdownUtils {
     }
 
     /**
-     * LaTeX 预处理：jlatexmath 不支持 \tag/\tag*（amsmath 宏），
-     * 降级为行末括号标签 \quad(\text{内容})，避免整条公式渲染失败
-     * 注：对代码块中的字面 \tag 文本也会生效（出现概率极低，可接受）
+     * LaTeX 预处理：
+     * 1. \tag/\tag*（jlatexmath 不支持，amsmath 宏）降级为行末括号标签
+     * 2. 行内单美元 $...$ → $$...$$（ext-latex 4.6.2 行内解析器正则只认双美元，
+     *    单美元完全不匹配导致源码显示——行内/表格内/绝对值/求和积分极限行内形式全失效）
+     *    规则：开始 $ 前不能是 $ 或 \（排除块级 $$ 与转义 \$），内容单行不含 $，
+     *    闭合 $ 后不能是 $（排除 $$）
      */
     private static String preprocessLatex(String markdown) {
-        return markdown.replaceAll("\\\\tag\\*?\\{([^}]*)\\}", "\\\\quad(\\\\text{$1})");
+        // 1. \tag 降级
+        String s = markdown.replaceAll("\\\\tag\\*?\\{([^}]*)\\}", "\\\\quad(\\\\text{$1})");
+        // 2. 行内单美元 → 双美元
+        s = s.replaceAll("(?<!\\$)(?<!\\\\)\\$(?!\\$)([^$\\n]+?)\\$(?!\\$)", "$$$$$1$$$$");
+        return s;
     }
 
     /**

@@ -19,7 +19,6 @@ import io.noties.markwon.syntax.Prism4jTheme;
 import io.noties.markwon.syntax.Prism4jThemeDarkula;
 import io.noties.markwon.syntax.SyntaxHighlightPlugin;
 import io.noties.prism4j.Prism4j;
-import io.noties.prism4j.bundler.Prism4jBundler;
 
 /**
  * Markdown渲染工具类

@@ -52,7 +52,7 @@ public class MarkdownUtils {
                 final float textSize = 14f * appContext.getResources().getDisplayMetrics().scaledDensity;
                 markwon = Markwon.builder(appContext)
                         .usePlugin(MarkwonInlineParserPlugin.create())
-                        .usePlugin(TablePlugin.create())
+                        .usePlugin(TablePlugin.create(appContext))
                         .usePlugin(SyntaxHighlightPlugin.create(PRISM4J, PRISM_THEME))
                         .usePlugin(JLatexMathPlugin.create(textSize, builder -> builder.inlinesEnabled(true)))
                         .usePlugin(GlideImagesPlugin.create(appContext))

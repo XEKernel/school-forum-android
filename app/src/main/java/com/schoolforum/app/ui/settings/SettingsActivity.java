@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.schoolforum.app.MainActivity;
 import com.schoolforum.app.R;
+import com.schoolforum.app.SchoolForumApp;
 import com.schoolforum.app.network.ApiClient;
 import com.schoolforum.app.ui.login.LoginActivity;
 import com.schoolforum.app.utils.UserManager;
@@ -58,6 +59,8 @@ public class SettingsActivity extends AppCompatActivity {
         tvVisibilityBirthday = findViewById(R.id.tvVisibilityBirthdayValue);
         tvVisibilitySchool = findViewById(R.id.tvVisibilitySchoolValue);
         tvThemeValue = findViewById(R.id.tvThemeValue);
+        // 显示当前主题
+        tvThemeValue.setText(themeLabel(SchoolForumApp.getThemePreference(this)));
         switchNotifyLike = findViewById(R.id.switchNotifyLike);
         switchNotifyComment = findViewById(R.id.switchNotifyComment);
         switchNotifyFollow = findViewById(R.id.switchNotifyFollow);
@@ -252,13 +255,32 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void showThemeDialog() {
         String[] options = {"跟随系统", "浅色模式", "深色模式"};
+        String current = SchoolForumApp.getThemePreference(this);
+        int checked = SchoolForumApp.THEME_DARK.equals(current) ? 2
+                : SchoolForumApp.THEME_LIGHT.equals(current) ? 1 : 0;
+
         new androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("选择主题")
-            .setItems(options, (dialog, which) -> {
-                tvThemeValue.setText(options[which]);
-                // TODO: 实际切换主题
+            .setSingleChoiceItems(options, checked, (dialog, which) -> {
+                String value = which == 1 ? SchoolForumApp.THEME_LIGHT
+                        : which == 2 ? SchoolForumApp.THEME_DARK : SchoolForumApp.THEME_SYSTEM;
+                // 保存偏好并应用（setDefaultNightMode + 重建界面）
+                SchoolForumApp.saveThemePreference(this, value);
+                SchoolForumApp.applyThemePreference(value);
+                dialog.dismiss();
+                recreate();
             })
+            .setNegativeButton("取消", null)
             .show();
+    }
+
+    /**
+     * 主题值 → 显示文案
+     */
+    private String themeLabel(String value) {
+        if (SchoolForumApp.THEME_DARK.equals(value)) return "深色模式";
+        if (SchoolForumApp.THEME_LIGHT.equals(value)) return "浅色模式";
+        return "跟随系统";
     }
 
     private void showAboutDialog() {

@@ -91,7 +91,11 @@ dependencies {
     implementation 'io.noties.markwon:core:4.6.2'
     implementation 'io.noties.markwon:image-glide:4.6.2'
     implementation 'io.noties.markwon:linkify:4.6.2'
-    implementation 'io.noties.markwon:ext-latex:4.6.2'
+    implementation('io.noties.markwon:ext-latex:4.6.2') {
+        // 排除传递依赖 ru.noties:jlatexmath-android:0.2.0（jitpack 已 404 无法解析，
+        // 且与下方 1.3 同包名会造成 DEX 重复类冲突）
+        exclude group: 'ru.noties', module: 'jlatexmath-android'
+    }
     implementation 'io.noties.markwon:ext-tables:4.6.2'
     implementation 'io.noties.markwon:ext-strikethrough:4.6.2'
     implementation 'io.noties.markwon:ext-tasklist:4.6.2'
@@ -101,9 +105,11 @@ dependencies {
     // Prism4j 原生代码高亮（语言定义见 io/noties/prism4j/languages，注册见 ForumPrismBundle）
     implementation 'io.noties:prism4j:2.0.0'
     annotationProcessor 'io.noties:prism4j-bundler:2.0.0'
-    // LaTeX 渲染引擎升级：ext-latex 传递依赖 jlatexmath 0.2.0（2019年，宏支持有限），
-    // 显式升级到 1.3（2026-01，核心 API JLatexMathDrawable 完全兼容）提升宏覆盖
-    implementation 'ru.noties:jlatexmath-android:1.3'
+    // LaTeX 渲染引擎升级：ext-latex 原传递依赖 jlatexmath 0.2.0（2019年，宏支持有限，
+    // 且 jitpack 已 404），改用 noties 的活跃 fork rikkahub 发布的 1.3
+    // （2026-01，聚合 POM 自动带 jlatexmath 核心 + 西里尔/希腊字体；
+    //  包名仍为 ru.noties.jlatexmath，与 ext-latex 完全兼容）
+    implementation 'com.github.rikkahub:jlatexmath-android:1.3'
     
     // 图片缩放查看
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'

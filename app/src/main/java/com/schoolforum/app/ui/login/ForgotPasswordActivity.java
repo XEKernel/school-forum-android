@@ -184,7 +184,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                                     "网络错误：" + error, Toast.LENGTH_SHORT).show();
                         });
                     }
-                });
+                }, null);
     }
 
     /**
@@ -262,7 +262,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                                     "网络错误：" + error, Toast.LENGTH_SHORT).show();
                         });
                     }
-                });
+                }, null);
     }
 
     private void startCountDown() {

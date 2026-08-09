@@ -22,6 +22,7 @@ import io.noties.markwon.syntax.Prism4jTheme;
 import io.noties.markwon.syntax.Prism4jThemeDarkula;
 import io.noties.markwon.syntax.SyntaxHighlightPlugin;
 import io.noties.prism4j.Prism4j;
+import ru.noties.jlatexmath.JLatexMathAndroid;
 
 /**
  * Markdown渲染工具类
@@ -51,6 +52,9 @@ public class MarkdownUtils {
         Markwon markwon = markwonCache.get(appContext);
         if (markwon == null) {
             try {
+                // jlatexmath 渲染前必须初始化字体工厂（否则 TeXFormula 加载字体抛 NPE，
+                // 所有公式渲染失败——行内/希腊字母/数学符号全部空白）。幂等，可重复调用
+                JLatexMathAndroid.init(appContext);
                 // 公式字号跟随系统密度（14sp 基准）
                 final float textSize = 14f * appContext.getResources().getDisplayMetrics().scaledDensity;
                 markwon = Markwon.builder(appContext)
@@ -80,11 +84,20 @@ public class MarkdownUtils {
             return;
         }
         try {
-            getMarkwon(context).setMarkdown(textView, markdown);
+            getMarkwon(context).setMarkdown(textView, preprocessLatex(markdown));
         } catch (Exception e) {
             // 如果渲染失败，直接显示原文
             textView.setText(markdown);
         }
+    }
+
+    /**
+     * LaTeX 预处理：jlatexmath 不支持 \tag/\tag*（amsmath 宏），
+     * 降级为行末括号标签 \quad(\text{内容})，避免整条公式渲染失败
+     * 注：对代码块中的字面 \tag 文本也会生效（出现概率极低，可接受）
+     */
+    private static String preprocessLatex(String markdown) {
+        return markdown.replaceAll("\\\\tag\\*?\\{([^}]*)\\}", "\\\\quad(\\\\text{$1})");
     }
 
     /**

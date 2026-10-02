@@ -25,8 +25,12 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // Debug 默认指向模拟器宿主机，正式包需在 release 块中覆盖为真实服务器地址
-        buildConfigField "String", "BASE_URL", '"http://10.0.2.2:2080"'
+        // 服务器地址：默认指向公网测试实例（该实例已移除邮箱验证，便于联调）
+        // 本地联调（模拟器 → WSL 内的本地服务）无需改文件，构建时覆盖即可：
+        //   ./gradlew assembleDebug -PbaseUrl=http://10.0.2.2:2080
+        // 或在项目根 gradle.properties 写一行：baseUrl=http://10.0.2.2:2080
+        def apiBaseUrl = project.findProperty('baseUrl') ?: 'https://xek114514.ccwu.cc'
+        buildConfigField "String", "BASE_URL", "\"${apiBaseUrl}\""
     }
 
     buildFeatures {
@@ -38,11 +42,12 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            // TODO: 发布前将下面的地址替换为真实服务器地址
-            buildConfigField "String", "BASE_URL", '"https://your-server.com"'
+            // 不再单独覆盖 BASE_URL：与 defaultConfig 保持一致（公网实例）。
+            // 需要发布包指向别处时，用 -PbaseUrl=... 覆盖，或改 defaultConfig 里的默认值。
         }
         debug {
-            // Debug 包使用 defaultConfig 中的地址（模拟器宿主机），无需重复声明
+            // Debug 包沿用 defaultConfig 中的地址（默认公网实例）；
+            // 需要连本地服务时用 -PbaseUrl=... 覆盖，无需重复声明
         }
     }
     

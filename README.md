@@ -45,11 +45,19 @@ android/
 
 ## 配置服务器地址
 
-在 `app/build.gradle` 的 `BuildConfig` 中修改 `BASE_URL`：
+默认指向公网测试实例 `https://xek114514.ccwu.cc`（该实例已移除邮箱验证，注册/登录无需收验证码）。
+地址在 `app/build.gradle` 统一配置，debug 与 release 共用：
 
 ```groovy
-buildConfigField "String", "BASE_URL", "\"http://10.0.2.2:2080\""  // 模拟器访问本机
-// 真机访问局域网：改为实际 IP，如 "http://192.168.x.x:2080"
+def apiBaseUrl = project.findProperty('baseUrl') ?: 'https://xek114514.ccwu.cc'
+buildConfigField "String", "BASE_URL", "\"${apiBaseUrl}\""
+```
+
+本地联调（模拟器/真机访问自己机器上的服务）无需改文件，构建时用 `-PbaseUrl` 覆盖：
+
+```bash
+./gradlew assembleDebug -PbaseUrl=http://10.0.2.2:2080       # 模拟器 → 宿主机
+./gradlew assembleDebug -PbaseUrl=http://192.168.1.10:2080   # 真机 → 局域网
 ```
 
 ## 构建步骤

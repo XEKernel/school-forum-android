@@ -25,6 +25,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.schoolforum.app.R;
+import com.schoolforum.app.BuildConfig;
 import com.schoolforum.app.model.BaseResponse;
 import com.schoolforum.app.model.User;
 import com.schoolforum.app.network.ApiClient;
@@ -81,7 +82,43 @@ public class RegisterFragment extends Fragment {
         initViews(view);
         setupDropdowns();
         loadSchools();
-        loadCaptcha();
+
+        applyTestMode(view);
+
+        // 测试版不需要人机验证，连 /captcha 都不请求
+        if (!BuildConfig.TEST_BUILD) {
+            loadCaptcha();
+        }
+    }
+
+    /**
+     * 测试版（BuildConfig.TEST_BUILD）适配。
+     *
+     * 公网测试实例的 register 已注明「不再强制邮箱与邮箱验证码」，也不校验图形验证码，
+     * 未填邮箱时服务端用 q{QQ}@test.local 占位。因此测试版隐藏邮箱、邮箱验证码、
+     * 图形验证码三块，注册只需 QQ/用户名/密码/学校/入学年份/班级。
+     *
+     * 注意：这里用 GONE 隐藏（视图对象仍存在），所以 register() 中必须同步跳过
+     * 对应的必填校验与参数拼装，否则会被隐藏字段的 setError 拦住而发不出请求。
+     */
+    private void applyTestMode(View view) {
+        View hint = view.findViewById(R.id.tvTestHint);
+        if (hint != null) {
+            hint.setVisibility(BuildConfig.TEST_BUILD ? View.VISIBLE : View.GONE);
+        }
+        if (!BuildConfig.TEST_BUILD) {
+            return;
+        }
+        hideView(view, R.id.rowEmailCode);
+        hideView(view, R.id.rowCaptcha);
+        hideView(view, R.id.tilCode);
+    }
+
+    private void hideView(View root, int id) {
+        View v = root.findViewById(id);
+        if (v != null) {
+            v.setVisibility(View.GONE);
+        }
     }
     
     private void log(String message) {
@@ -362,11 +399,12 @@ public class RegisterFragment extends Fragment {
             etConfirmPassword.setError("两次密码不一致");
             return;
         }
-        if (TextUtils.isEmpty(email)) {
+        // 测试版（公网测试实例）：邮箱与邮箱验证码都不是必填，未填邮箱时服务端用占位邮箱
+        if (!BuildConfig.TEST_BUILD && TextUtils.isEmpty(email)) {
             etEmail.setError("请输入邮箱");
             return;
         }
-        if (TextUtils.isEmpty(code)) {
+        if (!BuildConfig.TEST_BUILD && TextUtils.isEmpty(code)) {
             etCode.setError("请输入验证码");
             return;
         }
@@ -389,8 +427,10 @@ public class RegisterFragment extends Fragment {
         params.put("qq", qq);
         params.put("username", username);
         params.put("password", password);
-        params.put("email", email);
-        params.put("verificationCode", code);
+        if (!BuildConfig.TEST_BUILD) {
+            params.put("email", email);
+            params.put("verificationCode", code);
+        }
         // school 字段应存学校名称（id 是配置代号如 'XXXX'，存储名称才能正确展示）
         params.put("school", selectedSchoolName != null ? selectedSchoolName : (selectedSchoolId != null ? selectedSchoolId : ""));
         // 入学年份由用户选择，年级由服务端按入学时间自动计算
@@ -403,17 +443,19 @@ public class RegisterFragment extends Fragment {
             params.put("gender", gender.equals("男") ? "male" : gender.equals("女") ? "female" : "other");
         }
 
-        // 注册接口要求图形验证码（服务端 _verifyCaptcha）
-        String captchaCode = etCaptchaCode != null && etCaptchaCode.getText() != null
-                ? etCaptchaCode.getText().toString().trim() : "";
-        if (TextUtils.isEmpty(captchaId) || TextUtils.isEmpty(captchaCode)) {
-            showLoading(false);
-            Toast.makeText(getContext(), "请输入图形验证码", Toast.LENGTH_SHORT).show();
-            loadCaptcha();
-            return;
+        // 注册接口要求图形验证码（服务端 _verifyCaptcha）；测试版服务端不再校验，故跳过
+        if (!BuildConfig.TEST_BUILD) {
+            String captchaCode = etCaptchaCode != null && etCaptchaCode.getText() != null
+                    ? etCaptchaCode.getText().toString().trim() : "";
+            if (TextUtils.isEmpty(captchaId) || TextUtils.isEmpty(captchaCode)) {
+                showLoading(false);
+                Toast.makeText(getContext(), "请输入图形验证码", Toast.LENGTH_SHORT).show();
+                loadCaptcha();
+                return;
+            }
+            params.put("captchaId", captchaId);
+            params.put("captchaCode", captchaCode);
         }
-        params.put("captchaId", captchaId);
-        params.put("captchaCode", captchaCode);
 
         ApiClient.getInstance(requireContext()).postForm("/register", params,
             new ApiClient.ApiCallback<String>() {

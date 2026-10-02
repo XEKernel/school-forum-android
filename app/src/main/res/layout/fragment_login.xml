@@ -6,8 +6,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- 测试版提示（仅 TEST_BUILD 显示，正式版始终 gone） -->
+    <TextView
+        android:id="@+id/tvTestHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_md"
+        android:text="@string/test_build_hint"
+        android:textColor="@color/warning"
+        android:textSize="@dimen/text_sm"
+        android:visibility="gone" />
+
     <!-- 邮箱输入 -->
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/email"
@@ -68,6 +80,7 @@
 
     <!-- 验证码 -->
     <LinearLayout
+        android:id="@+id/rowCode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_lg"
@@ -105,6 +118,7 @@
 
     <!-- 图形验证码 -->
     <LinearLayout
+        android:id="@+id/rowCaptcha"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_md"

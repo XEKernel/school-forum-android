@@ -21,6 +21,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.schoolforum.app.R;
+import com.schoolforum.app.BuildConfig;
 import com.schoolforum.app.model.BaseResponse;
 import com.schoolforum.app.model.User;
 import com.schoolforum.app.network.ApiClient;
@@ -78,10 +79,45 @@ public class LoginFragment extends Fragment {
         btnSendCode.setOnClickListener(v -> sendVerificationCode());
         btnLogin.setOnClickListener(v -> login());
 
-        // 加载图形验证码，点击刷新
+        // 图形验证码：点击刷新
         if (ivCaptcha != null) {
             ivCaptcha.setOnClickListener(v -> loadCaptcha());
+        }
+
+        applyTestMode(view);
+
+        // 测试版不需要人机验证，连 /captcha 都不请求
+        if (ivCaptcha != null && !BuildConfig.TEST_BUILD) {
             loadCaptcha();
+        }
+    }
+
+    /**
+     * 测试版（BuildConfig.TEST_BUILD）适配。
+     *
+     * 公网测试实例已移除邮箱验证与人机验证，服务端登录只认「QQ号 + 密码」，
+     * 因此测试版隐藏邮箱、邮箱验证码、图形验证码三项，并显示一行提示。
+     *
+     * 注意：这里用 GONE 隐藏（视图对象仍存在），所以 login() 中必须同步跳过
+     * 对应的必填校验，否则会被隐藏字段的 setError 拦住而发不出请求。
+     */
+    private void applyTestMode(View view) {
+        View hint = view.findViewById(R.id.tvTestHint);
+        if (hint != null) {
+            hint.setVisibility(BuildConfig.TEST_BUILD ? View.VISIBLE : View.GONE);
+        }
+        if (!BuildConfig.TEST_BUILD) {
+            return;
+        }
+        hideView(view, R.id.tilEmail);
+        hideView(view, R.id.rowCode);
+        hideView(view, R.id.rowCaptcha);
+    }
+
+    private void hideView(View root, int id) {
+        View v = root.findViewById(id);
+        if (v != null) {
+            v.setVisibility(View.GONE);
         }
     }
     
@@ -214,7 +250,8 @@ public class LoginFragment extends Fragment {
         String password = etPassword.getText() != null ? etPassword.getText().toString().trim() : "";
         String code = etCode.getText() != null ? etCode.getText().toString().trim() : "";
 
-        if (TextUtils.isEmpty(email)) {
+        // 测试版（公网测试实例）：不需要邮箱与人机验证，只校验 QQ 号与密码
+        if (!BuildConfig.TEST_BUILD && TextUtils.isEmpty(email)) {
             etEmail.setError("请输入邮箱");
             return;
         }
@@ -226,7 +263,7 @@ public class LoginFragment extends Fragment {
             etPassword.setError("请输入密码");
             return;
         }
-        if (TextUtils.isEmpty(code)) {
+        if (!BuildConfig.TEST_BUILD && TextUtils.isEmpty(code)) {
             etCode.setError("请输入验证码");
             return;
         }
@@ -235,10 +272,12 @@ public class LoginFragment extends Fragment {
         log("Starting login request...");
 
         Map<String, String> params = new HashMap<>();
-        params.put("email", email);
         params.put("qq", qq);
         params.put("password", password);
-        params.put("verificationCode", code);
+        if (!BuildConfig.TEST_BUILD) {
+            params.put("email", email);
+            params.put("verificationCode", code);
+        }
 
         ApiClient.getInstance(requireContext()).postForm("/login", params,
             new ApiClient.ApiCallback<String>() {
@@ -315,8 +354,8 @@ public class LoginFragment extends Fragment {
     }
 
     private static class LoginResponse extends BaseResponse {
-        boolean success;
-        String message;
+        // 注意：success / message 已由 BaseResponse 提供，此处不能再声明一遍，
+        // 否则 Gson 会抛 "declares multiple JSON fields named 'message'"，登录恒报「数据解析失败」。
         User user;
         boolean isAdmin;
         // JWT Token 字段

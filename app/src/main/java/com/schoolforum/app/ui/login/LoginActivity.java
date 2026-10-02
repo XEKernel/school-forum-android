@@ -16,6 +16,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.schoolforum.app.MainActivity;
 import com.schoolforum.app.R;
+import com.schoolforum.app.BuildConfig;
 import com.schoolforum.app.utils.FileLogger;
 import com.schoolforum.app.utils.UserManager;
 
@@ -89,8 +90,15 @@ public class LoginActivity extends AppCompatActivity {
         tvSkip = findViewById(R.id.tvSkip);
 
         // 忘记密码入口
-        findViewById(R.id.tvForgotPassword).setOnClickListener(v ->
-                startActivity(new android.content.Intent(this, ForgotPasswordActivity.class)));
+        // 测试版：公网测试实例的 reset-password 仍强制邮箱验证码，而该实例没有邮件通道，
+        // 这条路必然失败；直接隐藏入口，避免测试者卡在死胡同。
+        TextView tvForgotPassword = findViewById(R.id.tvForgotPassword);
+        if (BuildConfig.TEST_BUILD) {
+            tvForgotPassword.setVisibility(android.view.View.GONE);
+        } else {
+            tvForgotPassword.setOnClickListener(v ->
+                    startActivity(new android.content.Intent(this, ForgotPasswordActivity.class)));
+        }
 
         tvSkip.setOnClickListener(v -> {
             navigateToMain();

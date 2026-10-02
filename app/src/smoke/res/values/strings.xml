@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  测试版（smoke buildType）专属资源覆盖。
+  只覆盖 app_name：与正式版同名同图标会分不清哪个是测试包，
+  这里显示为「校园论坛（测试）」，配合带 TEST 角标的图标（见 res/mipmap-*）。
+-->
+<resources>
+    <string name="app_name">校园论坛（测试）</string>
+</resources>

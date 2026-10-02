@@ -31,6 +31,11 @@ android {
         // 或在项目根 gradle.properties 写一行：baseUrl=http://10.0.2.2:2080
         def apiBaseUrl = project.findProperty('baseUrl') ?: 'https://xek114514.ccwu.cc'
         buildConfigField "String", "BASE_URL", "\"${apiBaseUrl}\""
+
+        // 是否为「测试版」构建（见下方 smoke buildType）。
+        // 正式版为 false：注册/登录保留邮箱验证码 + 图形验证码的完整校验；
+        // 测试版为 true：公网实例已移除邮箱验证与人机验证，客户端同步跳过。
+        buildConfigField "boolean", "TEST_BUILD", "false"
     }
 
     buildFeatures {
@@ -48,6 +53,21 @@ android {
         debug {
             // Debug 包沿用 defaultConfig 中的地址（默认公网实例）；
             // 需要连本地服务时用 -PbaseUrl=... 覆盖，无需重复声明
+        }
+
+        // 测试版（小规模测试专用）：与正式版同签名、可并存安装。
+        //   ./gradlew assembleSmoke      → app/build/outputs/apk/smoke/app-smoke.apk
+        // 与 debug 的差异：
+        //   1. applicationId 加 .test 后缀 → 独立应用，可与正式版同时安装
+        //   2. 应用名显示「校园论坛（测试）」、启动图标带 TEST 角标（见 src/smoke/res/）
+        //   3. BuildConfig.TEST_BUILD=true → 登录/注册跳过邮箱验证码与人机验证
+        smoke {
+            initWith debug
+            applicationIdSuffix ".test"
+            versionNameSuffix "-test"
+            signingConfig signingConfigs.debug
+            buildConfigField "boolean", "TEST_BUILD", "true"
+            matchingFallbacks = ['debug', 'release']
         }
     }
     

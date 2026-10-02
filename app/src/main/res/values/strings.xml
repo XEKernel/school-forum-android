@@ -45,6 +45,8 @@
     <string name="login_success">登录成功</string>
     <string name="register_success">注册成功</string>
     <string name="slogan">连接校园，分享知识</string>
+    <!-- 仅测试版构建（BuildConfig.TEST_BUILD）显示：公网实例已移除邮箱验证与人机验证 -->
+    <string name="test_build_hint">测试版：登录与注册均不需要邮箱验证和人机验证，填写 QQ 号与密码即可。</string>
     
     <!-- 帖子 -->
     <string name="post_title">标题</string>

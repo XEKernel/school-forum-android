@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- 背景 -->
+    <path
+        android:fillColor="#4361EE"
+        android:pathData="M0,0h48v48H0z" />
+    
+    <!-- 圆形 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,24m-16,0a16,16 0,1 1,32 0a16,16 0,1 1,-32 0" />
+    
+    <!-- 对话框 -->
+    <path
+        android:fillColor="#4361EE"
+        android:pathData="M24,14C17.373,14 12,19.373 12,26C12,29.394 13.278,32.491 15.357,34.8L15.357,40L22,36C22.655,36.099 23.321,36.15 24,36.15C30.627,36.15 36,30.777 36,24.15C36,17.523 30.627,14 24,14Z" />
+    
+    <!-- 点 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M18,22m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,22m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,22m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+    <!-- 测试版角标（TEST） -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M14.667,27.556h18.667v6.222h-18.667z" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.844"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M17.333,28.667L20,28.667 M18.667,28.667L18.667,32.667 M21.111,28.667L21.111,32.667 M21.111,28.667L23.333,28.667 M21.111,30.667L22.889,30.667 M21.111,32.667L23.333,32.667 M26.667,28.667L24.667,28.667 M24.667,28.667L24.667,30.667 M24.667,30.667L26.444,30.667 M26.444,30.667L26.444,32.667 M26.444,32.667L24.444,32.667 M27.778,28.667L30.444,28.667 M29.111,28.667L29.111,32.667" />
+</vector>

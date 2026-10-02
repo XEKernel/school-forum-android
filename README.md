@@ -85,6 +85,26 @@ buildConfigField "String", "BASE_URL", "\"${apiBaseUrl}\""
 # app/build/outputs/apk/release/app-release.apk
 ```
 
+### 构建测试版（smoke）
+
+面向小规模测试的构建：与正式版**同签名、不同包名**，可同时安装、互不干扰。
+
+```bash
+./gradlew assembleSmoke
+# 产物：app/build/outputs/apk/smoke/app-smoke.apk
+```
+
+| 项 | 正式版（debug / release） | 测试版（smoke） |
+|---|---|---|
+| applicationId | `com.schoolforum.app` | `com.schoolforum.app.test` |
+| 应用名 | 校园论坛 | 校园论坛（测试） |
+| 启动图标 | 原图标 | 带 TEST 角标（覆盖于 `src/smoke/res/`） |
+| 登录 / 注册 | 邮箱 + 邮箱验证码 + 图形验证码 | 仅 QQ + 密码（`BuildConfig.TEST_BUILD=true`） |
+
+> 测试版会跳过邮箱验证码与图形验证码，仅适用于服务端已移除这两项校验的测试实例。
+> 测试版的 `src/smoke/res/` 会覆盖 `mipmap-*/ic_launcher*`，而 App 内的**默认头像**
+> 目前复用的正是 `@mipmap/ic_launcher_round`，因此测试版下无头像用户会显示带 TEST 角标的图标。
+
 ## 功能特性
 
 - 原生 Java 客户端（非 WebView 封装），OkHttp 网络层 + JWT 双 Token 认证

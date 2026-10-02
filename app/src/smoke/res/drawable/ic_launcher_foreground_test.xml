@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- 中心圆形背景 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,54m-40,0a40,40 0,1 1,80 0a40,40 0,1 1,-80 0" />
+    
+    <!-- 论坛图标 - 对话框形状 -->
+    <path
+        android:fillColor="#4361EE"
+        android:pathData="M54,30C42.954,30 34,38.954 34,50C34,56.365 36.863,62.077 41.357,65.971L41.357,78L52.571,70.971C53.686,71.156 54.83,71.258 56,71.258C67.046,71.258 76,62.304 76,51.258C76,40.212 67.046,30 54,30Z" />
+    
+    <!-- 对话点 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,48m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M56,48m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M68,48m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+
+
+    <!-- 测试版角标（TEST） -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M33,62h42v14h-42z" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.9"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M39,64.5L45,64.5 M42,64.5L42,73.5 M47.5,64.5L47.5,73.5 M47.5,64.5L52.5,64.5 M47.5,69L51.5,69 M47.5,73.5L52.5,73.5 M60,64.5L55.5,64.5 M55.5,64.5L55.5,69 M55.5,69L59.5,69 M59.5,69L59.5,73.5 M59.5,73.5L55,73.5 M62.5,64.5L68.5,64.5 M65.5,64.5L65.5,73.5" />
+</vector>

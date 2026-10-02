@@ -12,6 +12,17 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- 测试版提示（仅 TEST_BUILD 显示，正式版始终 gone） -->
+        <TextView
+            android:id="@+id/tvTestHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_md"
+            android:text="@string/test_build_hint"
+            android:textColor="@color/warning"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
         <!-- QQ号 -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -138,6 +149,7 @@
 
         <!-- 邮箱和验证码 -->
         <LinearLayout
+            android:id="@+id/rowEmailCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -174,6 +186,7 @@
 
         <!-- 图形验证码 -->
         <LinearLayout
+            android:id="@+id/rowCaptcha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -212,6 +225,7 @@
 
         <!-- 验证码 -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"

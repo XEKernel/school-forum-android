@@ -668,6 +668,13 @@ public class ApiClient {
                                 : null;
                         if (newToken != null) {
                             saveAccessToken(newToken);
+                            // 轮换：同步保存新的 refresh token（旧的在服务端已作废）
+                            String newRefresh = refreshResponse.refreshToken != null
+                                    ? refreshResponse.refreshToken
+                                    : (refreshResponse.data != null ? refreshResponse.data.refreshToken : null);
+                            if (newRefresh != null && !newRefresh.isEmpty()) {
+                                saveRefreshToken(newRefresh);
+                            }
                             log("Token refresh successful");
                             if (callback != null) callback.onRefreshSuccess(newToken);
                         } else {
@@ -757,12 +764,17 @@ public class ApiClient {
         String message;
         // 服务端 refresh-token 响应格式：{ success, message, token }（业务字段根级展开）
         String token;
+        // 服务端启用 refresh token 轮换后，响应里会带新的 refreshToken：
+        // 每次刷新都会签发新的、并把旧的加入黑名单，客户端必须同步保存，
+        // 否则下一次刷新用的是已作废的旧 token，会直接 401 掉登录。
+        String refreshToken;
         // 兼容旧格式 { success, message, data: { token } }
         RefreshData data;
     }
     
     private static class RefreshData {
         String token;
+        String refreshToken;
     }
     
     /**
@@ -893,6 +905,13 @@ public class ApiClient {
                             : null;
                     if (newToken != null) {
                         saveAccessToken(newToken);
+                        // 轮换：同步保存新的 refresh token（旧的在服务端已作废）
+                        String newRefresh = refreshObj.refreshToken != null
+                                ? refreshObj.refreshToken
+                                : (refreshObj.data != null ? refreshObj.data.refreshToken : null);
+                        if (newRefresh != null && !newRefresh.isEmpty()) {
+                            saveRefreshToken(newRefresh);
+                        }
                         log("Sync token refresh successful");
                         return true;
                     }
